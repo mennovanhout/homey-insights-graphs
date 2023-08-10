@@ -1,0 +1,154 @@
+{
+  "title": {
+    "en": "create graph image",
+    "nl": "maak grafiek afbeelding"
+  },
+  "titleFormatted": {
+    "en": "create graph of [[type]] [[resolution]] with background color [[backgroundColor]]",
+    "nl": "maak grafiek van [[type]] [[resolution]] met achtergrondkleur [[backgroundColor]]"
+  },
+  "args": [
+    {
+      "type": "autocomplete",
+      "name": "type",
+      "placeholder": {
+        "en": "Choose a type",
+        "nl": "Kies een type"
+      }
+    },
+    {
+      "type": "dropdown",
+      "name": "resolution",
+      "title": {
+        "en": "Choose a resolution",
+        "nl": "Kies een tijdsbestek"
+      },
+      "values": [
+        {
+          "id": "lastHour",
+          "title": {
+            "en": "Last Hour",
+            "nl": "Afgelopen uur"
+          }
+        },
+        {
+          "id": "last6Hours",
+          "title": {
+            "en": "Last 6 Hours",
+            "nl": "Afgelopen 6 uur"
+          }
+        },
+        {
+          "id": "last24Hours",
+          "title": {
+            "en": "Last 24 Hours",
+            "nl": "Afgelopen 24 uur"
+          }
+        },
+        {
+          "id": "last7Days",
+          "title": {
+            "en": "Last 7 Days",
+            "nl": "Afgelopen 7 dagen"
+          }
+        },
+        {
+          "id": "last14Days",
+          "title": {
+            "en": "Last 14 Days",
+            "nl": "Afgelopen 14 dagen"
+          }
+        },
+        {
+          "id": "last31Days",
+          "title": {
+            "en": "Last 31 Days",
+            "nl": "Afgelopen 31 dagen"
+          }
+        },
+        {
+          "id": "last2Years",
+          "title": {
+            "en": "Last 2 Years",
+            "nl": "Afgelopen 2 jaar"
+          }
+        },
+        {
+          "id": "today",
+          "title": {
+            "en": "Today",
+            "nl": "Vandaag"
+          }
+        },
+        {
+          "id": "thisWeek",
+          "title": {
+            "en": "This Week",
+            "nl": "Deze week"
+          }
+        },
+        {
+          "id": "thisMonth",
+          "title": {
+            "en": "This Month",
+            "nl": "Deze maand"
+          }
+        },
+        {
+          "id": "thisYear",
+          "title": {
+            "en": "This Year",
+            "nl": "Dit jaar"
+          }
+        },
+        {
+          "id": "yesterday",
+          "title": {
+            "en": "Yesterday",
+            "nl": "Gisteren"
+          }
+        },
+        {
+          "id": "lastWeek",
+          "title": {
+            "en": "Last Week",
+            "nl": "Afgelopen week"
+          }
+        },
+        {
+          "id": "lastMonth",
+          "title": {
+            "en": "Last Month",
+            "nl": "Afgelopen maand"
+          }
+        },
+        {
+          "id": "lastYear",
+          "title": {
+            "en": "Last Year",
+            "nl": "Afgelopen jaar"
+          }
+        }
+      ]
+    },
+    {
+      "type": "color",
+      "name": "backgroundColor",
+      "title": {
+        "en": "Background Color",
+        "nl": "Achtergrondkleur"
+      }
+
+    }
+  ],
+  "tokens": [
+    {
+      "name": "graph",
+      "type": "image",
+      "title": {
+        "en": "Graph",
+        "nl": "Grafiek"
+      }
+    }
+  ]
+}

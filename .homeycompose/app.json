@@ -1,0 +1,30 @@
+{
+  "id": "nl.mennovanhout.insight-graphs",
+  "version": "1.0.0",
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Insight Graphs"
+  },
+  "description": {
+    "en": "Adds support to generate graphs for insights as image"
+  },
+  "category": [
+    "tools"
+  ],
+  "permissions": [
+    "homey:manager:api"
+  ],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Menno van Hout",
+    "email": "menno.vanhout@gmail.com"
+  }
+}
