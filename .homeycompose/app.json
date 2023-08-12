@@ -7,8 +7,8 @@
     "local"
   ],
   "name": {
-    "en": "Insight Graphs",
-    "nl": "Insight Grafieken"
+    "en": "Insights Graphs",
+    "nl": "Insights Grafieken"
   },
   "description": {
     "en": "Adds support to generate graphs for insights as image",
