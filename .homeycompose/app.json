@@ -1,6 +1,6 @@
 {
   "id": "nl.mennovanhout.insight-graphs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "platforms": [
@@ -46,7 +46,8 @@
     "email": "menno.vanhout@gmail.com"
   },
   "brandColor": "#333333",
-  "support": "mailto:info@mennovanhout.nl",
+  "support": "https://community.homey.app/t/app-pro-insights-graphs-coming-soon/86856/",
+  "homeyCommunityTopicId": 86856
   "homepage": "https://mennovanhout.nl",
   "contributing": {
     "donate": {
