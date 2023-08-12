@@ -22,9 +22,25 @@
     "homey:manager:api"
   ],
   "images": {
-    "small": "/assets/images/small.png",
-    "large": "/assets/images/large.png",
-    "xlarge": "/assets/images/xlarge.png"
+    "small": "/assets/images/small.jpg",
+    "large": "/assets/images/large.jpg",
+    "xlarge": "/assets/images/xlarge.jpg"
+  },
+  "contributors": {
+    "developers": [
+      {
+        "name": "Léon van der Linden",
+        "email": "homey@vdlinden.xyz"
+      }
+    ],
+    "translators": [
+      {
+        "name": "🇬🇧 Léon"
+      },
+      {
+        "name": "🇳🇱 Léon"
+      }
+    ]
   },
   "author": {
     "name": "Menno van Hout",
@@ -48,13 +64,37 @@
           "nl": "maak grafiek afbeelding"
         },
         "titleFormatted": {
-          "en": "create graph of [[type]] [[resolution]] with background color [[backgroundColor]]",
-          "nl": "maak grafiek van [[type]] [[resolution]] met achtergrondkleur [[backgroundColor]]"
+          "en": "create [[type]] graph of [[device]] [[resolution]] with line color [[lineColor]] and background color [[backgroundColor]]",
+          "nl": "maak [[type]] grafiek van [[device]] [[resolution]] met lijnkleur [[lineColor]] en achtergrondkleur [[backgroundColor]]"
         },
         "args": [
           {
-            "type": "autocomplete",
             "name": "type",
+            "type": "dropdown",
+            "title": {
+              "en": "Type",
+              "nl": "Type"
+            },
+            "values": [
+              {
+                "id": "line",
+                "title": {
+                  "en": "line",
+                  "nl": "lijn"
+                }
+              },
+              {
+                "id": "bar",
+                "title": {
+                  "en": "bar",
+                  "nl": "balk"
+                }
+              }
+            ]
+          },
+          {
+            "type": "autocomplete",
+            "name": "device",
             "placeholder": {
               "en": "Choose a type",
               "nl": "Kies een type"
@@ -174,6 +214,14 @@
                 }
               }
             ]
+          },
+          {
+            "type": "color",
+            "name": "lineColor",
+            "title": {
+              "en": "Line Color",
+              "nl": "Lijnkleur"
+            }
           },
           {
             "type": "color",

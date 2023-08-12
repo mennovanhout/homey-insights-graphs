@@ -25,11 +25,7 @@
     "large": "/assets/images/large.jpg",
     "xlarge": "/assets/images/xlarge.jpg"
   },
-  "author": {
-    "name": "Menno van Hout",
-    "email": "menno.vanhout@gmail.com"
-  },
-    "contributors": {
+  "contributors": {
     "developers": [
       {
         "name": "Léon van der Linden",
