@@ -7,10 +7,12 @@
     "local"
   ],
   "name": {
-    "en": "Insight Graphs"
+    "en": "Insight Graphs",
+    "nl": "Insight Grafieken"
   },
   "description": {
-    "en": "Adds support to generate graphs for insights as image"
+    "en": "Adds support to generate graphs for insights as image",
+    "nl": "Voegt ondersteuning toe om grafieken te genereren voor inzichten als afbeelding"
   },
   "category": [
     "tools"
@@ -26,5 +28,15 @@
   "author": {
     "name": "Menno van Hout",
     "email": "menno.vanhout@gmail.com"
+  },
+  "brandColor": "#333333",
+  "support": "mailto:info@mennovanhout.nl",
+  "homepage": "https://mennovanhout.nl",
+  "contributing": {
+    "donate": {
+      "bunq": {
+        "username": "mennovanhout"
+      }
+    }
   }
 }

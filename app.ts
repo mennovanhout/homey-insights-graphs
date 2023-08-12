@@ -1,4 +1,4 @@
-import Homey, {FlowCard} from 'homey';
+import Homey, {FlowCard, Image} from 'homey';
 import { HomeyAPI, HomeyAPIV3Local } from 'homey-api';
 import ChartJSImage from "chart.js-image";
 
@@ -22,45 +22,46 @@ class InsightGraphs extends Homey.App {
 
     this.createGraphActionCard = this.homey.flow.getActionCard('create-graph-image');
     this.createGraphActionCard.registerArgumentAutocompleteListener('type', this.autocompleteListener.bind(this));
+    this.createGraphActionCard.registerRunListener(this.runListener.bind(this));
+  }
 
-    this.createGraphActionCard.registerRunListener(async (args, stats) => {
-      // Get logs
-      const logs = await this.insightsManager!.getLogEntries({id: args.type.id, uri: args.type.uri, resolution: args.resolution});
+  private async runListener(args: any, stats: any): Promise<{graph: Image}> {
+    // Get logs
+    const logs = await this.insightsManager!.getLogEntries({id: args.type.id, uri: args.type.uri, resolution: args.resolution});
 
-      this.log(logs);
+    this.log(logs);
 
-      // Generate image
-      // @ts-ignore
-      const chart = new ChartJSImage().chart({
-        type: "line",
-        data: {
-          labels: logs.values.map((log: any) => this.formatLabel(log.t, args.resolution)),
-          datasets: [
-            {
-                label: `${args.type.name} - ${args.resolution}`,
-                data: logs.values.map((log: any) => log.v),
-                backgroundColor: args.backgroundColor,
-            }
-          ]
-        },
-        options: {
-          scales: {
-            yAxes: [{
-              ticks: {
-                beginAtZero: false
-              }
-            }]
+    // Generate images
+    // @ts-ignore
+    const chart = new ChartJSImage().chart({
+      type: "line",
+      data: {
+        labels: logs.values.map((log: any) => this.formatLabel(log.t, args.resolution)),
+        datasets: [
+          {
+            label: `${args.type.name} - ${args.resolution}`,
+            data: logs.values.map((log: any) => log.v),
+            backgroundColor: args.backgroundColor,
           }
+        ]
+      },
+      options: {
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: false
+            }
+          }]
         }
-      });
-
-      const image = await this.homey.images.createImage();
-      image.setUrl(chart.toURL());
-
-      return {
-        graph: image,
       }
     });
+
+    const image = await this.homey.images.createImage();
+    image.setUrl(chart.toURL());
+
+    return {
+      graph: image,
+    };
   }
 
   private formatLabel(label: string, resolution: string): string {
