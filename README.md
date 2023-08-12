@@ -1,3 +1,7 @@
+
+![forum_banner](https://github.com/LRvdLinden/homey-insigh-graphs/assets/77990847/99f01c2b-ca1f-4f87-8e4f-40b509107052)
+
+
 Insights Graphs for Homey
 
 This app allows you to export any Homey Insights data into beautiful graphs.
