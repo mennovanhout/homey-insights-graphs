@@ -56,11 +56,8 @@ class InsightGraphs extends Homey.App {
             }
           }]
         },
-        chartArea: {
-          backgroundColor: args.backgroundColor
-        }
       }
-    });
+    }).backgroundColor(args.darkMode ? '#1f2029' : '#ffffff');
 
     const image = await this.homey.images.createImage();
     image.setUrl(chart.toURL());

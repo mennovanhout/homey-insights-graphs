@@ -4,8 +4,8 @@
     "nl": "maak grafiek afbeelding"
   },
   "titleFormatted": {
-    "en": "create [[type]] graph of [[device]] [[resolution]] with line color [[lineColor]] and background color [[backgroundColor]]",
-    "nl": "maak [[type]] grafiek van [[device]] [[resolution]] met lijnkleur [[lineColor]] en achtergrondkleur [[backgroundColor]]"
+    "en": "create [[type]] graph of [[device]] [[resolution]] with line color [[lineColor]] in dark mode [[darkMode]]",
+    "nl": "maak [[type]] grafiek van [[device]] [[resolution]] met lijnkleur [[lineColor]] in donkere modus [[darkMode]]"
   },
   "args": [
     {
@@ -164,11 +164,11 @@
       }
     },
     {
-      "type": "color",
-      "name": "backgroundColor",
+      "type": "checkbox",
+      "name": "darkMode",
       "title": {
-        "en": "Background Color",
-        "nl": "Achtergrondkleur"
+        "en": "Dark Mode",
+        "nl": "Donkere modus"
       }
     }
   ],
