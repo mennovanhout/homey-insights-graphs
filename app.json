@@ -89,13 +89,6 @@
                   "en": "bar",
                   "nl": "balk"
                 }
-              },
-              {
-                "id": "scatter",
-                "title": {
-                  "en": "scatter",
-                  "nl": "spreiding"
-                }
               }
             ]
           },

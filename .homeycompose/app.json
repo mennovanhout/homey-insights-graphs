@@ -1,5 +1,5 @@
 {
-  "id": "nl.mennovanhout.insight-graphs",
+  "id": "nl.mennovanhout.insights-graphs",
   "version": "1.0.0",
   "compatibility": ">=5.0.0",
   "sdk": 3,
@@ -7,8 +7,8 @@
     "local"
   ],
   "name": {
-    "en": "Insight Graphs",
-    "nl": "Insight Grafieken"
+    "en": "Insights Graphs",
+    "nl": "Insights Grafieken"
   },
   "description": {
     "en": "Adds support to generate graphs for insights as image",
@@ -25,6 +25,8 @@
     "large": "/assets/images/large.jpg",
     "xlarge": "/assets/images/xlarge.jpg"
   },
+  "support": "https://community.homey.app/t/app-pro-insights-graphs-coming-soon/86856",
+  "homeyCommunityTopicId": 86856,
   "contributors": {
     "developers": [
       {
