@@ -1,6 +1,6 @@
 {
   "id": "nl.mennovanhout.insights-graphs",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "platforms": [
@@ -11,8 +11,8 @@
     "nl": "Insights Grafieken"
   },
   "description": {
-    "en": "Adds support to generate graphs for insights as image",
-    "nl": "Voegt ondersteuning toe om grafieken te genereren voor inzichten als afbeelding"
+    "en": "Generate graphs/images of your favourite sensors and devices",
+    "nl": "Genereer grafieken/afbeeldingen van je favoriete sensoren en apparaten"
   },
   "category": [
     "tools"
@@ -25,7 +25,7 @@
     "large": "/assets/images/large.jpg",
     "xlarge": "/assets/images/xlarge.jpg"
   },
-  "support": "https://community.homey.app/t/app-pro-insights-graphs-coming-soon/86856",
+  "support": "mailto:info@mennovanhout.nl",
   "homeyCommunityTopicId": 86856,
   "contributors": {
     "developers": [
@@ -48,7 +48,6 @@
     "email": "menno.vanhout@gmail.com"
   },
   "brandColor": "#333333",
-  "support": "mailto:info@mennovanhout.nl",
   "homepage": "https://mennovanhout.nl",
   "contributing": {
     "donate": {

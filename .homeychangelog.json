@@ -1,5 +1,8 @@
 {
   "1.0.0": {
     "en": "First release"
+  },
+  "1.1.0": {
+    "en": "Make the app internet independend"
   }
 }

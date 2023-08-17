@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "nl.mennovanhout.insights-graphs",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "platforms": [
@@ -12,8 +12,8 @@
     "nl": "Insights Grafieken"
   },
   "description": {
-    "en": "Adds support to generate graphs for insights as image",
-    "nl": "Voegt ondersteuning toe om grafieken te genereren voor inzichten als afbeelding"
+    "en": "Generate graphs/images of your favourite sensors and devices",
+    "nl": "Genereer grafieken/afbeeldingen van je favoriete sensoren en apparaten"
   },
   "category": [
     "tools"
@@ -246,29 +246,5 @@
         "id": "create-graph-image"
       }
     ]
-  },
-  "drivers": [
-    {
-      "name": {
-        "en": "Chart"
-      },
-      "class": "other",
-      "capabilities": [],
-      "platforms": [
-        "local"
-      ],
-      "connectivity": [],
-      "images": {
-        "small": "/drivers/chart/assets/images/small.png",
-        "large": "/drivers/chart/assets/images/large.png",
-        "xlarge": "/drivers/chart/assets/images/xlarge.png"
-      },
-      "pair": [
-        {
-          "id": "start"
-        }
-      ],
-      "id": "chart"
-    }
-  ]
+  }
 }
