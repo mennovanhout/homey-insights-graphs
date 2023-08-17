@@ -1,7 +1,7 @@
 import Homey, {FlowCard, Image} from 'homey';
 import { HomeyAPI, HomeyAPIV3Local } from 'homey-api';
-import ChartJSImage from "chart.js-image";
 import LogNormaliser, {Log} from './src/LogNormaliser';
+import ChartJsImage from "chartjs-to-image";
 
 class InsightGraphs extends Homey.App {
   resolutionSelection: string[] = ['lastHour', 'last6Hours', 'last24Hours', 'last7Days', 'last14Days', 'last31Days',
@@ -34,33 +34,42 @@ class InsightGraphs extends Homey.App {
     const values = logNormaliser.getNormalisedLogs();
 
     // Generate images
-    // @ts-ignore
-    const chart = new ChartJSImage().chart({
-      type: args.type,
-      data: {
-        labels: values.map((log) => log.t),
-        datasets: [
-          {
-            label: `${args.device.name} - ${args.resolution}`,
-            data: values.map((log) => log.v),
-            borderColor: args.lineColor,
-            backgroundColor: `#${this.addAlpha(args.lineColor.replace('#', ''), 0.2)}`,
-          }
-        ]
-      },
-      options: {
-        scales: {
-          yAxes: [{
-            ticks: {
-              beginAtZero: false
+    const chart = new ChartJsImage();
+
+    chart.setConfig({
+        type: args.type,
+        data: {
+          labels: values.map((log) => log.t),
+          datasets: [
+            {
+              label: `${args.device.name} - ${args.resolution}`,
+              data: values.map((log) => log.v),
+              borderColor: args.lineColor,
+              backgroundColor: `#${this.addAlpha(args.lineColor.replace('#', ''), 0.2)}`,
             }
-          }]
+          ]
         },
-      }
-    }).backgroundColor(args.darkMode ? '#1f2029' : '#ffffff');
+        options: {
+          scales: {
+            yAxes: [{
+              ticks: {
+                beginAtZero: false
+              }
+            }],
+            x: {
+              ticks: {
+
+              },
+              color: 'red'
+            }
+          },
+        }
+      }).setBackgroundColor(args.darkMode ? '#1f2029' : '#ffffff');
+
+    await chart.toFile('/userdata/temp.png');
 
     const image = await this.homey.images.createImage();
-    image.setUrl(chart.toURL());
+    image.setPath('/userdata/temp.png');
 
     return {
       graph: image,

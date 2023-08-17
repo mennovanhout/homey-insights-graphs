@@ -1,0 +1,21 @@
+{
+  "name": {
+    "en": "Chart"
+  },
+  "class": "other",
+  "capabilities": [],
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [],
+  "images": {
+    "small": "{{driverAssetsPath}}/images/small.png",
+    "large": "{{driverAssetsPath}}/images/large.png",
+    "xlarge": "{{driverAssetsPath}}/images/xlarge.png"
+  },
+  "pair": [
+    {
+      "id": "start"
+    }
+  ]
+}
