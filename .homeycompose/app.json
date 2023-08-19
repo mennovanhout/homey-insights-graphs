@@ -1,6 +1,6 @@
 {
   "id": "nl.mennovanhout.insights-graphs",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "platforms": [
@@ -32,7 +32,7 @@
       {
         "name": "Léon van der Linden"
       },
-            {
+      {
         "name": "Bas van der Ploeg"
       }
     ],
