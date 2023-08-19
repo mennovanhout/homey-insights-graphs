@@ -4,8 +4,8 @@
     "nl": "maak grafiek afbeelding"
   },
   "titleFormatted": {
-    "en": "create [[type]] graph of [[device]] [[resolution]] with line color [[lineColor]] in dark mode [[darkMode]]",
-    "nl": "maak [[type]] grafiek van [[device]] [[resolution]] met lijnkleur [[lineColor]] in donkere modus [[darkMode]]"
+    "en": "Create [[type]] graph of [[device]] [[resolution]] with line color [[lineColor]] in [[darkModeType]]",
+    "nl": "Maak [[type]] grafiek van [[device]] [[resolution]] met lijnkleur [[lineColor]] in [[darkModeType]]"
   },
   "args": [
     {
@@ -164,12 +164,35 @@
       }
     },
     {
-      "type": "checkbox",
-      "name": "darkMode",
+      "name": "darkModeType",
+      "type": "dropdown",
       "title": {
-        "en": "Dark Mode",
-        "nl": "Donkere modus"
-      }
+          "en": "Color Mode",
+          "nl": "Kleurmodus"
+      },
+      "values": [
+        {
+          "id": "automode",
+          "title": {
+            "en": "Transparent Mode",
+            "nl": "Transparante modus"
+          }
+        },
+        {
+          "id": "darkmode",
+          "title": {
+            "en": "Dark Mode",
+            "nl": "Donkere modus"
+          }
+        },
+        {
+          "id": "lightmode",
+          "title": {
+            "en": "Light Mode",
+            "nl": "Lichte modus"
+          }
+        }
+      ]
     }
   ],
   "tokens": [
