@@ -32,39 +32,81 @@ class InsightGraphs extends Homey.App {
 
     const logNormaliser = new LogNormaliser(logs, args.resolution);
     const values = logNormaliser.getNormalisedLogs();
+    
+    // Background color selection
+    var backgroundColorType;
+    if (args.darkModeType == 'darkmode') {
+       backgroundColorType = '#222329';
+     } else if (args.darkModeType == 'lightmode') {
+       backgroundColorType = '#ffffff';
+     } else {
+       backgroundColorType = 'transparent';
+     }
 
     // Generate images
     const chart = new ChartJsImage();
 
     chart.setConfig({
-        type: args.type,
-        data: {
-          labels: values.map((log) => log.t),
-          datasets: [
-            {
-              label: `${args.device.name} - ${args.resolution}`,
-              data: values.map((log) => log.v),
-              borderColor: args.lineColor,
-              backgroundColor: `#${this.addAlpha(args.lineColor.replace('#', ''), 0.2)}`,
-            }
-          ]
-        },
-        options: {
-          scales: {
-            yAxes: [{
-              ticks: {
-                beginAtZero: false
-              }
-            }],
-            x: {
-              ticks: {
-
+      type: args.type,
+      data: {
+        labels: values.map((log) => log.t),
+        datasets: [{
+          label: `${args.device.name} - ${args.resolution}`,
+          data: values.map((log) => log.v),
+          borderColor: args.lineColor,
+          backgroundColor: `#${this.addAlpha(args.lineColor.replace('#', ''), 0.5)}`,
+          fill: true,
+          cubicInterpolationMode: 'monotone',
+          borderWidth: 2,
+          lineTension: 0.4,
+          pointRadius: 0
+        }]
+      },
+       options: {
+         layout: {
+           padding: {
+             left: 10,
+             right: 30,
+             top: 20,
+             bottom: 10
+           }
+         },
+         legend: {
+           display: false,
+         },
+         scales: {
+           xAxes: [{
+             ticks: {
+               autoSkip: true,
+               maxTicksLimit: 6,
+               maxRotation: 0
+             },
+             gridLines: {
+               display: false
+             }
+           }],
+           yAxes: [{
+             ticks: {
+                autoSkip: true,
+                maxTicksLimit: 6,
+                beginAtZero: false,
               },
-              color: 'red'
-            }
-          },
-        }
-      }).setBackgroundColor(args.darkMode ? '#1f2029' : '#ffffff');
+             scaleLabel: {
+                display: true,
+                labelString: `${args.device.name}`,
+              },
+              gridLines: {
+                display: true,
+                borderDash: [4,4],
+                color: 'rgba(127,127,127,0.2)'
+              }
+            }]
+         }
+       }
+    });
+    chart.setWidth(500).setHeight(300).setBackgroundColor(backgroundColorType).setDevicePixelRatio('3.0');
+
+
 
     await chart.toFile('/userdata/temp.png');
 
