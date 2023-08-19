@@ -2,6 +2,7 @@ import Homey, {FlowCard, Image} from 'homey';
 import { HomeyAPI, HomeyAPIV3Local } from 'homey-api';
 import LogNormaliser, {Log} from './src/LogNormaliser';
 import ChartJsImage from "chartjs-to-image";
+import {backgroundColor} from "./src/Utils";
 
 class InsightGraphs extends Homey.App {
   resolutionSelection: string[] = ['lastHour', 'last6Hours', 'last24Hours', 'last7Days', 'last14Days', 'last31Days',
@@ -32,16 +33,6 @@ class InsightGraphs extends Homey.App {
 
     const logNormaliser = new LogNormaliser(logs, args.resolution);
     const values = logNormaliser.getNormalisedLogs();
-    
-    // Background color selection
-    var backgroundColorType;
-    if (args.darkModeType == 'darkmode') {
-       backgroundColorType = '#222329';
-     } else if (args.darkModeType == 'lightmode') {
-       backgroundColorType = '#ffffff';
-     } else {
-       backgroundColorType = 'transparent';
-     }
 
     // Generate images
     const chart = new ChartJsImage();
@@ -56,7 +47,7 @@ class InsightGraphs extends Homey.App {
           borderColor: args.lineColor,
           backgroundColor: `#${this.addAlpha(args.lineColor.replace('#', ''), 0.5)}`,
           fill: true,
-          cubicInterpolationMode: 'monotone',
+          // cubicInterpolationMode: 'monotone',
           borderWidth: 2,
           lineTension: 0.4,
           pointRadius: 0
@@ -77,9 +68,9 @@ class InsightGraphs extends Homey.App {
          scales: {
            xAxes: [{
              ticks: {
-               autoSkip: true,
-               maxTicksLimit: 6,
-               maxRotation: 0
+               // autoSkip: true,
+               // maxTicksLimit: 6,
+               // maxRotation: 0
              },
              gridLines: {
                display: false
@@ -87,8 +78,8 @@ class InsightGraphs extends Homey.App {
            }],
            yAxes: [{
              ticks: {
-                autoSkip: true,
-                maxTicksLimit: 6,
+                // autoSkip: true,
+                // maxTicksLimit: 6,
                 beginAtZero: false,
               },
              scaleLabel: {
@@ -103,8 +94,11 @@ class InsightGraphs extends Homey.App {
             }]
          }
        }
-    });
-    chart.setWidth(500).setHeight(300).setBackgroundColor(backgroundColorType).setDevicePixelRatio('3.0');
+    })
+        .setWidth(500)
+        .setHeight(300)
+        .setBackgroundColor(backgroundColor(args.darkModeType))
+        .setDevicePixelRatio('3.0');
 
 
 

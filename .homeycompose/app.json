@@ -49,6 +49,7 @@
     "name": "Menno van Hout",
     "email": "menno.vanhout@gmail.com"
   },
+  "source": "https://github.com/mennovanhout/homey-insights-graphs",
   "brandColor": "#333333",
   "homepage": "https://mennovanhout.nl",
   "contributing": {

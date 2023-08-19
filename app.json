@@ -22,17 +22,19 @@
     "homey:manager:api"
   ],
   "images": {
-    "small": "/assets/images/small.jpg",
-    "large": "/assets/images/large.jpg",
-    "xlarge": "/assets/images/xlarge.jpg"
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
   },
   "support": "mailto:info@mennovanhout.nl",
   "homeyCommunityTopicId": 86856,
   "contributors": {
     "developers": [
       {
-        "name": "Léon van der Linden",
-        "email": "homey@vdlinden.xyz"
+        "name": "Léon van der Linden"
+      },
+      {
+        "name": "Bas van der Ploeg"
       }
     ],
     "translators": [
@@ -48,6 +50,7 @@
     "name": "Menno van Hout",
     "email": "menno.vanhout@gmail.com"
   },
+  "source": "https://github.com/mennovanhout/homey-insights-graphs",
   "brandColor": "#333333",
   "homepage": "https://mennovanhout.nl",
   "contributing": {
@@ -65,8 +68,8 @@
           "nl": "maak grafiek afbeelding"
         },
         "titleFormatted": {
-          "en": "create [[type]] graph of [[device]] [[resolution]] with line color [[lineColor]] in dark mode [[darkMode]]",
-          "nl": "maak [[type]] grafiek van [[device]] [[resolution]] met lijnkleur [[lineColor]] in donkere modus [[darkMode]]"
+          "en": "Create [[type]] graph of [[device]] [[resolution]] with line color [[lineColor]] in [[darkModeType]]",
+          "nl": "Maak [[type]] grafiek van [[device]] [[resolution]] met lijnkleur [[lineColor]] in [[darkModeType]]"
         },
         "args": [
           {
@@ -225,12 +228,35 @@
             }
           },
           {
-            "type": "checkbox",
-            "name": "darkMode",
+            "name": "darkModeType",
+            "type": "dropdown",
             "title": {
-              "en": "Dark Mode",
-              "nl": "Donkere modus"
-            }
+              "en": "Color Mode",
+              "nl": "Kleurmodus"
+            },
+            "values": [
+              {
+                "id": "transparant",
+                "title": {
+                  "en": "Transparent Mode",
+                  "nl": "Transparante modus"
+                }
+              },
+              {
+                "id": "darkmode",
+                "title": {
+                  "en": "Dark Mode",
+                  "nl": "Donkere modus"
+                }
+              },
+              {
+                "id": "lightmode",
+                "title": {
+                  "en": "Light Mode",
+                  "nl": "Lichte modus"
+                }
+              }
+            ]
           }
         ],
         "tokens": [

@@ -12,3 +12,14 @@ export const generateId  = (): string => {
 
     return result;
 }
+
+export const backgroundColor = (arg: string): string => {
+    switch (arg) {
+        case 'darkmode':
+            return '#222329';
+        case 'lightmode':
+            return '#ffffff';
+        default:
+            return 'transparent';
+    }
+}
