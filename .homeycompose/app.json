@@ -30,8 +30,10 @@
   "contributors": {
     "developers": [
       {
-        "name": "Léon van der Linden",
-        "email": "homey@vdlinden.xyz"
+        "name": "Léon van der Linden"
+      },
+            {
+        "name": "Bas van der Ploeg"
       }
     ],
     "translators": [
