@@ -1,250 +1,155 @@
-{
-  "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
-  "id": "nl.mennovanhout.insights-graphs",
-  "version": "1.1.0",
-  "compatibility": ">=5.0.0",
-  "sdk": 3,
-  "platforms": [
-    "local"
-  ],
-  "name": {
-    "en": "Insights Graphs",
-    "nl": "Insights Grafieken"
-  },
-  "description": {
-    "en": "Generate graphs/images of your favourite sensors and devices",
-    "nl": "Genereer grafieken/afbeeldingen van je favoriete sensoren en apparaten"
-  },
-  "category": [
-    "tools"
-  ],
-  "permissions": [
-    "homey:manager:api"
-  ],
-  "images": {
-    "small": "/assets/images/small.jpg",
-    "large": "/assets/images/large.jpg",
-    "xlarge": "/assets/images/xlarge.jpg"
-  },
-  "support": "mailto:info@mennovanhout.nl",
-  "homeyCommunityTopicId": 86856,
-  "contributors": {
-    "developers": [
-      {
-        "name": "Léon van der Linden",
-        "email": "homey@vdlinden.xyz"
-      }
-    ],
-    "translators": [
-      {
-        "name": "🇬🇧 Léon"
+import Homey, {FlowCard, Image} from 'homey';
+import { HomeyAPI, HomeyAPIV3Local } from 'homey-api';
+import LogNormaliser, {Log} from './src/LogNormaliser';
+import ChartJsImage from "chartjs-to-image";
+
+class InsightGraphs extends Homey.App {
+  resolutionSelection: string[] = ['lastHour', 'last6Hours', 'last24Hours', 'last7Days', 'last14Days', 'last31Days',
+    'last2Years', 'today', 'thisWeek', 'thisMonth', 'thisYear', 'yesterday', 'lastWeek', 'lastMonth', 'lastYear'];
+  homeyApi: HomeyAPIV3Local|undefined = undefined;
+  createGraphActionCard: Homey.FlowCardAction|undefined;
+  insightsManager: HomeyAPIV3Local.ManagerInsights|undefined;
+  deviceManager: HomeyAPIV3Local.ManagerDevices|undefined;
+
+  async onInit() {
+    this.homeyApi = await HomeyAPI.createAppAPI({
+      homey: this.homey,
+    });
+
+    // @ts-ignore
+    this.insightsManager = this.homeyApi!.insights;
+    // @ts-ignore
+    this.deviceManager = this.homeyApi!.devices;
+
+    this.createGraphActionCard = this.homey.flow.getActionCard('create-graph-image');
+    this.createGraphActionCard.registerArgumentAutocompleteListener('device', this.autocompleteListener.bind(this));
+    this.createGraphActionCard.registerRunListener(this.runListener.bind(this));
+  }
+
+  private async runListener(args: any, stats: any): Promise<{graph: Image}> {
+    // Get logs
+    const logs: Log = await this.insightsManager!.getLogEntries({id: args.device.id, uri: args.device.uri, resolution: args.resolution});
+
+    const logNormaliser = new LogNormaliser(logs, args.resolution);
+    const values = logNormaliser.getNormalisedLogs();
+    
+    // Background color selection
+    var backgroundColorType;
+    if (args.darkModeType == 'darkmode') {
+       backgroundColorType = '#222329';
+     } else if (args.darkModeType == 'lightmode') {
+       backgroundColorType = '#ffffff';
+     } else {
+       backgroundColorType = 'transparent';
+     }
+
+    // Generate images
+    const chart = new ChartJsImage();
+
+    chart.setConfig({
+      type: args.type,
+      data: {
+        labels: values.map((log) => log.t),
+        datasets: [{
+          label: `${args.device.name} - ${args.resolution}`,
+          data: values.map((log) => log.v),
+          borderColor: args.lineColor,
+          backgroundColor: `#${this.addAlpha(args.lineColor.replace('#', ''), 0.5)}`,
+          fill: true,
+          cubicInterpolationMode: 'monotone',
+          borderWidth: 2,
+          lineTension: 0.4,
+          pointRadius: 0
+        }]
       },
-      {
-        "name": "🇳🇱 Léon"
-      }
-    ]
-  },
-  "author": {
-    "name": "Menno van Hout",
-    "email": "menno.vanhout@gmail.com"
-  },
-  "brandColor": "#333333",
-  "homepage": "https://mennovanhout.nl",
-  "contributing": {
-    "donate": {
-      "bunq": {
-        "username": "mennovanhout"
-      }
-    }
-  },
-  "flow": {
-    "actions": [
-      {
-        "title": {
-          "en": "create graph image",
-          "nl": "maak grafiek afbeelding"
-        },
-        "titleFormatted": {
-          "en": "create [[type]] graph of [[device]] [[resolution]] with line color [[lineColor]] in dark mode [[darkMode]]",
-          "nl": "maak [[type]] grafiek van [[device]] [[resolution]] met lijnkleur [[lineColor]] in donkere modus [[darkMode]]"
-        },
-        "args": [
-          {
-            "name": "type",
-            "type": "dropdown",
-            "title": {
-              "en": "Type",
-              "nl": "Type"
-            },
-            "values": [
-              {
-                "id": "line",
-                "title": {
-                  "en": "line",
-                  "nl": "lijn"
-                }
+       options: {
+         layout: {
+           padding: {
+             left: 10,
+             right: 30,
+             top: 20,
+             bottom: 10
+           }
+         },
+         legend: {
+           display: false,
+         },
+         scales: {
+           xAxes: [{
+             ticks: {
+               autoSkip: true,
+               maxTicksLimit: 6,
+               maxRotation: 0
+             },
+             gridLines: {
+               display: false
+             }
+           }],
+           yAxes: [{
+             ticks: {
+                autoSkip: true,
+                maxTicksLimit: 6,
+                beginAtZero: false,
               },
-              {
-                "id": "bar",
-                "title": {
-                  "en": "bar",
-                  "nl": "balk"
-                }
+             scaleLabel: {
+                display: true,
+                labelString: `${args.device.name}`,
+              },
+              gridLines: {
+                display: true,
+                borderDash: [4,4],
+                color: 'rgba(127,127,127,0.2)'
               }
-            ]
-          },
-          {
-            "type": "autocomplete",
-            "name": "device",
-            "placeholder": {
-              "en": "Choose a type",
-              "nl": "Kies een type"
-            }
-          },
-          {
-            "type": "dropdown",
-            "name": "resolution",
-            "title": {
-              "en": "Choose a resolution",
-              "nl": "Kies een tijdsbestek"
-            },
-            "values": [
-              {
-                "id": "lastHour",
-                "title": {
-                  "en": "Last Hour",
-                  "nl": "Afgelopen uur"
-                }
-              },
-              {
-                "id": "last6Hours",
-                "title": {
-                  "en": "Last 6 Hours",
-                  "nl": "Afgelopen 6 uur"
-                }
-              },
-              {
-                "id": "last24Hours",
-                "title": {
-                  "en": "Last 24 Hours",
-                  "nl": "Afgelopen 24 uur"
-                }
-              },
-              {
-                "id": "last7Days",
-                "title": {
-                  "en": "Last 7 Days",
-                  "nl": "Afgelopen 7 dagen"
-                }
-              },
-              {
-                "id": "last14Days",
-                "title": {
-                  "en": "Last 14 Days",
-                  "nl": "Afgelopen 14 dagen"
-                }
-              },
-              {
-                "id": "last31Days",
-                "title": {
-                  "en": "Last 31 Days",
-                  "nl": "Afgelopen 31 dagen"
-                }
-              },
-              {
-                "id": "last2Years",
-                "title": {
-                  "en": "Last 2 Years",
-                  "nl": "Afgelopen 2 jaar"
-                }
-              },
-              {
-                "id": "today",
-                "title": {
-                  "en": "Today",
-                  "nl": "Vandaag"
-                }
-              },
-              {
-                "id": "thisWeek",
-                "title": {
-                  "en": "This Week",
-                  "nl": "Deze week"
-                }
-              },
-              {
-                "id": "thisMonth",
-                "title": {
-                  "en": "This Month",
-                  "nl": "Deze maand"
-                }
-              },
-              {
-                "id": "thisYear",
-                "title": {
-                  "en": "This Year",
-                  "nl": "Dit jaar"
-                }
-              },
-              {
-                "id": "yesterday",
-                "title": {
-                  "en": "Yesterday",
-                  "nl": "Gisteren"
-                }
-              },
-              {
-                "id": "lastWeek",
-                "title": {
-                  "en": "Last Week",
-                  "nl": "Afgelopen week"
-                }
-              },
-              {
-                "id": "lastMonth",
-                "title": {
-                  "en": "Last Month",
-                  "nl": "Afgelopen maand"
-                }
-              },
-              {
-                "id": "lastYear",
-                "title": {
-                  "en": "Last Year",
-                  "nl": "Afgelopen jaar"
-                }
-              }
-            ]
-          },
-          {
-            "type": "color",
-            "name": "lineColor",
-            "title": {
-              "en": "Line Color",
-              "nl": "Lijnkleur"
-            }
-          },
-          {
-            "type": "checkbox",
-            "name": "darkMode",
-            "title": {
-              "en": "Dark Mode",
-              "nl": "Donkere modus"
-            }
-          }
-        ],
-        "tokens": [
-          {
-            "name": "graph",
-            "type": "image",
-            "title": {
-              "en": "Graph",
-              "nl": "Grafiek"
-            }
-          }
-        ],
-        "id": "create-graph-image"
-      }
-    ]
+            }]
+         }
+       }
+    });
+    chart.setWidth(500).setHeight(300).setBackgroundColor(backgroundColorType).setDevicePixelRatio('3.0');
+
+
+
+    await chart.toFile('/userdata/temp.png');
+
+    const image = await this.homey.images.createImage();
+    image.setPath('/userdata/temp.png');
+
+    return {
+      graph: image,
+    };
+  }
+
+  private addAlpha(color: string, opacity: number) {
+    // coerce values so ti is between 0 and 1.
+    const  _opacity = Math.round(Math.min(Math.max(opacity || 1, 0), 1) * 255);
+    return color + _opacity.toString(16).toUpperCase();
+  }
+
+  private async autocompleteListener(query: string, args: any): Promise<FlowCard.ArgumentAutocompleteResults> {
+    const devices = await this.deviceManager!.getDevices();
+    const logs = await this.insightsManager!.getLogs();
+
+    const results = Object.keys(logs).map((key) => {
+      let description = logs[key].id.replace('homey:device:', '').replace('homey:manager:apps:', '');
+
+      Object.keys(devices).forEach((id) => {
+        if (description.includes(id)) {
+          description = description.replace(id, devices[id]?.name ?? 'unknown');
+        }
+      });
+
+      // @ts-ignore
+      const title = logs[key].title;
+
+      return {
+        name: title,
+        description: description.replaceAll(':', ' - '),
+        id: logs[key].id,
+        uri: logs[key].uri,
+      };
+    });
+
+    return results.filter((result) => result.name.toLowerCase().includes(query.toLowerCase()));
   }
 }
+
+module.exports = InsightGraphs;
