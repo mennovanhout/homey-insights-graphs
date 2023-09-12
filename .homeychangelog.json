@@ -7,5 +7,8 @@
   },
   "1.2.0": {
     "en": "Upgraded design and branding"
+  },
+  "2.0.0": {
+    "en": "Added file name so the same image id get's reused and solved timezone bug"
   }
 }
