@@ -11,6 +11,7 @@ class InsightGraphs extends Homey.App {
   createGraphActionCard: Homey.FlowCardAction|undefined;
   insightsManager: HomeyAPIV3Local.ManagerInsights|undefined;
   deviceManager: HomeyAPIV3Local.ManagerDevices|undefined;
+  imageManager: HomeyAPIV3Local.ManagerImages|undefined;
 
   async onInit() {
     this.homeyApi = await HomeyAPI.createAppAPI({
@@ -21,17 +22,20 @@ class InsightGraphs extends Homey.App {
     this.insightsManager = this.homeyApi!.insights;
     // @ts-ignore
     this.deviceManager = this.homeyApi!.devices;
+    // @ts-ignore
+    this.imageManager = this.homeyApi!.images;
 
     this.createGraphActionCard = this.homey.flow.getActionCard('create-graph-image');
     this.createGraphActionCard.registerArgumentAutocompleteListener('device', this.autocompleteListener.bind(this));
-    this.createGraphActionCard.registerRunListener(this.runListener.bind(this));
+    this.createGraphActionCard.registerRunListener(this.runListenerCreateGraph.bind(this));
   }
 
-  private async runListener(args: any, stats: any): Promise<{graph: Image}> {
+  private async runListenerCreateGraph(args: any, stats: any): Promise<{graph: Image}> {
+    const filename = args.filename ?? 'temp.png';
+
     // Get logs
     const logs: Log = await this.insightsManager!.getLogEntries({id: args.device.id, uri: args.device.uri, resolution: args.resolution});
-
-    const logNormaliser = new LogNormaliser(logs, args.resolution);
+    const logNormaliser = new LogNormaliser(logs, args.resolution, this.homey.clock.getTimezone());
     const values = logNormaliser.getNormalisedLogs();
 
     // Generate images
@@ -102,10 +106,30 @@ class InsightGraphs extends Homey.App {
 
 
 
-    await chart.toFile('/userdata/temp.png');
+    await chart.toFile(`/userdata/${filename}`);
 
+    // try to update image
+    const imageId = this.homey.settings.get(filename);
+    if (imageId) {
+      const homeyImages = await this.imageManager!.getImages();
+      // @ts-ignore
+      const homeyImage = Object.values(homeyImages!).find((item) => item.id === imageId);
+
+      if (homeyImage) {
+        const realImage = await this.homey.images.getImage(homeyImage.id);
+        await realImage.update();
+
+        return {
+          graph: realImage,
+        };
+      }
+    }
+
+    // Create image
     const image = await this.homey.images.createImage();
-    image.setPath('/userdata/temp.png');
+    image.setPath(`/userdata/${filename}`);
+
+    this.homey.settings.set(filename, image.id);
 
     return {
       graph: image,

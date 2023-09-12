@@ -1,4 +1,9 @@
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export interface LogValue {
     t: string,
@@ -19,10 +24,12 @@ export interface Log {
 class LogNormaliser {
     public logs: Log;
     public resolution: string;
+    public timezone: string;
 
-    constructor(logs: Log, resolution: string) {
+    constructor(logs: Log, resolution: string, timezone: string) {
         this.logs = logs;
         this.resolution = resolution;
+        this.timezone = timezone;
     }
 
     public getNormalisedLogs(): LogValue[] {
@@ -63,7 +70,7 @@ class LogNormaliser {
         }
 
         const combinedLogs = this.logs.values.reduce((acc: {[key: string]: LogValue[]}, log: LogValue) => {
-            const date = dayjs(log.t);
+            let date = dayjs(log.t);
             const dateFormatted = date.format(loopFormat);
 
             if (!acc[dateFormatted]) {
@@ -87,7 +94,7 @@ class LogNormaliser {
             }, {t: '', v: -999999});
 
             values.push({
-                t: dayjs(highestLog.t).format(labelFormat),
+                t: dayjs(highestLog.t).tz(this.timezone).format(labelFormat),
                 v: highestLog.v
             });
         });

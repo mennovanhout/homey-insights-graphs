@@ -4,8 +4,8 @@
     "nl": "maak grafiek afbeelding"
   },
   "titleFormatted": {
-    "en": "Create [[type]] graph of [[device]] [[resolution]] with line color [[lineColor]] in [[darkModeType]]",
-    "nl": "Maak [[type]] grafiek van [[device]] [[resolution]] met lijnkleur [[lineColor]] in [[darkModeType]]"
+    "en": "Create [[type]] graph of [[device]] [[resolution]] with line color [[lineColor]] in [[darkModeType]] as [[filename]]",
+    "nl": "Maak [[type]] grafiek van [[device]] [[resolution]] met lijnkleur [[lineColor]] in [[darkModeType]] als [[filename]]"
   },
   "args": [
     {
@@ -193,6 +193,14 @@
           }
         }
       ]
+    },
+    {
+      "name": "filename",
+      "type": "text",
+      "title": {
+        "en": "Filename",
+        "nl": "Bestandsnaam"
+      }
     }
   ],
   "tokens": [
