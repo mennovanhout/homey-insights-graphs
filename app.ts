@@ -31,7 +31,11 @@ class InsightGraphs extends Homey.App {
   }
 
   private async runListenerCreateGraph(args: any, stats: any): Promise<{graph: Image}> {
-    const filename = args.filename ?? 'temp.png';
+    let filename: string = args.filename ?? 'temp.png';
+
+    if (filename.endsWith('.png')) {
+      filename = filename + '.png';
+    }
 
     // Get logs
     const logs: Log = await this.insightsManager!.getLogEntries({id: args.device.id, uri: args.device.uri, resolution: args.resolution});
