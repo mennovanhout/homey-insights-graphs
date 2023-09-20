@@ -114,19 +114,14 @@ class InsightGraphs extends Homey.App {
 
     // try to update image
     const imageId = this.homey.settings.get(filename);
-    if (imageId) {
-      const homeyImages = await this.imageManager!.getImages();
-      // @ts-ignore
-      const homeyImage = Object.values(homeyImages!).find((item) => item.id === imageId);
+    const realImage = await this.getImage(imageId);
 
-      if (homeyImage) {
-        const realImage = await this.homey.images.getImage(homeyImage.id);
-        await realImage.update();
+    if (realImage) {
+      await realImage.update();
 
-        return {
-          graph: realImage,
-        };
-      }
+      return {
+        graph: realImage,
+      };
     }
 
     // Create image
@@ -138,6 +133,18 @@ class InsightGraphs extends Homey.App {
     return {
       graph: image,
     };
+  }
+
+  private async getImage(imageId: string) {
+    let realImage: Image|undefined;
+
+    try {
+      realImage = await this.homey.images.getImage(imageId);
+    } catch (error) {
+      realImage = undefined;
+    }
+
+    return realImage;
   }
 
   private addAlpha(color: string, opacity: number) {
