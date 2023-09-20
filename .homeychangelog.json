@@ -10,5 +10,8 @@
   },
   "2.0.0": {
     "en": "Added file name so the same image id get's reused and solved timezone bug"
+  },
+  "2.0.2": {
+    "en": "Image bug fix"
   }
 }
