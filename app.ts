@@ -138,6 +138,10 @@ class InsightGraphs extends Homey.App {
   private async getImage(imageId: string) {
     let realImage: Image|undefined;
 
+    if (!imageId) {
+      return undefined;
+    }
+
     try {
       realImage = await this.homey.images.getImage(imageId);
     } catch (error) {
