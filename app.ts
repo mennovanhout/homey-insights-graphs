@@ -161,7 +161,7 @@ class InsightGraphs extends Homey.App {
     const devices = await this.deviceManager!.getDevices();
     const logs = await this.insightsManager!.getLogs();
 
-    const results = Object.keys(logs).map((key) => {
+    const results = Object.keys(logs).reduce((result: any, key) => {
       let description = logs[key].id.replace('homey:device:', '').replace('homey:manager:apps:', '');
 
       Object.keys(devices).forEach((id) => {
@@ -173,15 +173,20 @@ class InsightGraphs extends Homey.App {
       // @ts-ignore
       const title = logs[key].title;
 
-      return {
+      if (!title) {
+        return result;
+      }
+
+      result.push({
         name: title,
         description: description.replaceAll(':', ' - '),
         id: logs[key].id,
         uri: logs[key].uri,
-      };
-    });
+      });
+      return result;
+    }, []);
 
-    return results.filter((result) => result.name.toLowerCase().includes(query.toLowerCase()));
+    return results.filter((result: any) => result.name.toLowerCase().includes((query ?? '').toLowerCase()));
   }
 }
 

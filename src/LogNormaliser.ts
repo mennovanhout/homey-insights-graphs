@@ -35,6 +35,16 @@ class LogNormaliser {
     public getNormalisedLogs(): LogValue[] {
         let labelFormat = 'HH:MM';
         let loopFormat = 'YYYY-MM-DD HH:mm:ss';
+        let maxResult: number|undefined = undefined;
+
+        switch (this.resolution) {
+            default:
+                break;
+            case 'last7Days':
+            case 'thisWeek':
+            case 'lastWeek':
+                maxResult = 7;
+        }
 
         switch (this.resolution) {
             default:
@@ -71,6 +81,7 @@ class LogNormaliser {
 
         const combinedLogs = this.logs.values.reduce((acc: {[key: string]: LogValue[]}, log: LogValue) => {
             let date = dayjs(log.t);
+
             const dateFormatted = date.format(loopFormat);
 
             if (!acc[dateFormatted]) {
@@ -98,6 +109,10 @@ class LogNormaliser {
                 v: highestLog.v
             });
         });
+
+        if (maxResult && values.length > maxResult) {
+            values.splice(0, values.length - maxResult);
+        }
 
         return values;
     }
