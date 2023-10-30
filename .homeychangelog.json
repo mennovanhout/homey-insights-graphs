@@ -16,5 +16,8 @@
   },
   "2.0.3": {
     "en": "hp2019 fix"
+  },
+  "2.0.4": {
+    "en": "Fix for toLowerCase error and 7 days really be 7 days."
   }
 }
