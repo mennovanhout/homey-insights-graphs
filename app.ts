@@ -3,6 +3,7 @@ import { HomeyAPI, HomeyAPIV3Local } from 'homey-api';
 import LogNormaliser, {Log} from './src/LogNormaliser';
 import ChartJsImage from "chartjs-to-image";
 import {backgroundColor} from "./src/Utils";
+import dayjs from "dayjs";
 
 class InsightGraphs extends Homey.App {
   resolutionSelection: string[] = ['lastHour', 'last6Hours', 'last24Hours', 'last7Days', 'last14Days', 'last31Days',
@@ -62,16 +63,35 @@ class InsightGraphs extends Homey.App {
         }]
       },
        options: {
+         plugins: {
+           title: {
+             display: true,
+             padding: 0,
+             font: {
+               size: 14
+             },
+             text: `${args.device.name} - ${args.resolution}`
+           },
+           subtitle: {
+             display: true,
+             position: 'bottom',
+             padding: 0,
+             font: {
+               size: 10
+             },
+             text: 'Created at ' + dayjs().tz(this.homey.clock.getTimezone()).format('YYYY-MM-DD HH:mm:ss')
+           },
+           legend: {
+             display: false,
+           },
+         },
          layout: {
            padding: {
              left: 10,
              right: 30,
-             top: 20,
+             top: 10,
              bottom: 10
            }
-         },
-         legend: {
-           display: false,
          },
          scales: {
            xAxes: [{
@@ -103,6 +123,7 @@ class InsightGraphs extends Homey.App {
          }
        }
     })
+        .setChartJsVersion('4.4.0')
         .setWidth(500)
         .setHeight(300)
         .setBackgroundColor(backgroundColor(args.darkModeType))

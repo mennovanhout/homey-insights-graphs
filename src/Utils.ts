@@ -16,7 +16,7 @@ export const generateId  = (): string => {
 export const backgroundColor = (arg: string): string => {
     switch (arg) {
         case 'darkmode':
-            return '#222329';
+            return '#1E1E1EFF';
         case 'lightmode':
             return '#ffffff';
         default:
