@@ -19,5 +19,8 @@
   },
   "2.0.4": {
     "en": "Fix for toLowerCase error and 7 days really be 7 days."
+  },
+  "2.0.5": {
+    "en": "Add creation date to bottom of image"
   }
 }
