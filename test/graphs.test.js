@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const Module = require('node:module');
-const Chart = require('chartjs-to-image');
+const Chart = require(require.resolve('chartjs-to-image', { paths: [require('node:path').resolve(__dirname, '../.homeybuild')] }));
 const { limitChartPoints } = require('../.homeybuild/src/Utils');
 const LogNormaliser = require('../.homeybuild/src/LogNormaliser').default;
 
@@ -66,7 +66,7 @@ test('graph action limits the request and reuses an image saved with the old fil
         assert.ok(config.options.scales.x && config.options.scales.y);
     };
     try {
-        const result = await app.runListenerCreateGraph({ filename: 'graph.png', resolution: 'last6Hours', device: { id: 'id', name: 'Example' }, type: 'line', lineColor: '#123456', darkModeType: 'lightmode' });
+        const result = await app.runListenerCreateGraph({ filename: 'graph.png', resolution: 'last6Hours', device: { id: 'id', name: 'Example' }, insight2: { id: '__insight_graphs_none__', name: 'None' }, type: 'line', lineColor: '#123456', darkModeType: 'lightmode' });
         assert.equal(result.graph, image);
         assert.equal(settings.get('graph.png'), 'old-id');
         assert.equal(image.path, '/userdata/graph.png');

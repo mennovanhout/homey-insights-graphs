@@ -17,6 +17,21 @@ export function makeMultiSeries(results: (Series|null)[], firstColor: string, ti
     if (!available.some(result => result.points.some(point => point.y !== null))) {
         throw new Error('No selected Insights have available values for this time range');
     }
+    let earliest = Infinity;
+    let latest = -Infinity;
+    for (const series of available) {
+        for (const point of series.points) {
+            if (point.y !== null && Number.isFinite(point.x)) {
+                earliest = Math.min(earliest, point.x);
+                latest = Math.max(latest, point.x);
+            }
+        }
+    }
+    // A single timestamp needs a small time window to avoid an enormous numeric scale.
+    if (earliest === latest) {
+        earliest -= 30 * 60 * 1000;
+        latest += 30 * 60 * 1000;
+    }
     const knownUnits = [...new Set(available.map(result => result.unit).filter(Boolean))];
     const unitFor = (result: Series) => result.unit || (knownUnits.length === 1 ? knownUnits[0] : '');
     const units = [...new Set(available.map(unitFor))];
@@ -41,16 +56,33 @@ export function makeMultiSeries(results: (Series|null)[], firstColor: string, ti
             fill: false, tension: 0.4, pointRadius: 0, spanGaps: false,
         };
     });
-    const isShort = ['lastHour', 'last6Hours', 'last24Hours', 'today', 'yesterday'].includes(resolution);
-    const tickOptions = isShort
-        ? { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: timezone }
-        : { day: '2-digit', month: 'short', year: '2-digit', timeZone: timezone };
+    const isHourView = ['lastHour', 'last6Hours', 'last24Hours', 'today', 'yesterday'].includes(resolution);
+    const tickCount = Math.min(13, Math.max(2, Math.floor((latest - earliest) / 60000) + 1));
+    let tickOptions: Intl.DateTimeFormatOptions;
+    if (isHourView) {
+        tickOptions = { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: timezone };
+    } else if (['last7Days', 'thisWeek', 'lastWeek'].includes(resolution)) {
+        tickOptions = { weekday: 'short', timeZone: timezone };
+    } else if (['thisYear', 'lastYear', 'last2Years'].includes(resolution)) {
+        tickOptions = { month: 'short', year: 'numeric', timeZone: timezone };
+    } else {
+        tickOptions = { day: '2-digit', month: 'short', timeZone: timezone };
+    }
     // QuickChart serializes callbacks, so embed only JSON-encoded formatting options.
     const formatTick = new Function('value', `return new Intl.DateTimeFormat('en-GB', ${JSON.stringify(tickOptions)}).format(new Date(Number(value)));`);
     return {
         datasets,
         scales: {
-            x: { type: 'linear', grid: { display: false }, ticks: { maxTicksLimit: 7, callback: formatTick } },
+            x: {
+                type: 'linear', min: earliest, max: latest, grid: { display: false },
+                ticks: {
+                    maxTicksLimit: isHourView ? tickCount : 7,
+                    ...(isHourView ? {count: tickCount} : {}),
+                    includeBounds: !isHourView,
+                    align: isHourView ? 'center' : 'inner',
+                    callback: formatTick,
+                },
+            },
             ...axes,
         },
     };

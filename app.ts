@@ -6,6 +6,8 @@ import {backgroundColor, limitChartPoints} from "./src/Utils";
 import dayjs from "dayjs";
 import {makeMultiSeries, insightPoints} from './src/MultiSeries';
 
+const NO_INSIGHT_ID = '__insight_graphs_none__';
+
 class InsightGraphs extends Homey.App {
   resolutionSelection: string[] = ['lastHour', 'last6Hours', 'last24Hours', 'last7Days', 'last14Days', 'last31Days',
     'last2Years', 'today', 'thisWeek', 'thisMonth', 'thisYear', 'yesterday', 'lastWeek', 'lastMonth', 'lastYear'];
@@ -30,7 +32,7 @@ class InsightGraphs extends Homey.App {
     this.createGraphActionCard = this.homey.flow.getActionCard('create-graph-image');
     this.createGraphActionCard.registerArgumentAutocompleteListener('device', this.autocompleteListener.bind(this));
     for (const name of ['insight2', 'insight3', 'insight4']) {
-      this.createGraphActionCard.registerArgumentAutocompleteListener(name, this.autocompleteListener.bind(this));
+      this.createGraphActionCard.registerArgumentAutocompleteListener(name, this.optionalAutocompleteListener.bind(this));
     }
     this.createGraphActionCard.registerRunListener(this.runListenerCreateGraph.bind(this));
   }
@@ -40,7 +42,7 @@ class InsightGraphs extends Homey.App {
     const filename = /\.png$/i.test(requestedFilename) ? requestedFilename : `${requestedFilename}.png`;
     const legacyFilename = requestedFilename.endsWith('.png') ? `${requestedFilename}.png` : requestedFilename;
 
-    const selected = [args.device, args.insight2, args.insight3, args.insight4].map((insight, index) => ({insight, index})).filter(item => item.insight && item.insight.id);
+    const selected = [args.device, args.insight2, args.insight3, args.insight4].map((insight, index) => ({insight, index})).filter(item => item.insight && item.insight.id && item.insight.id !== NO_INSIGHT_ID);
     const multi = selected.length > 1;
     let values: {t: string, v: number|null}[] = [];
     let multiChart;
@@ -195,7 +197,7 @@ class InsightGraphs extends Homey.App {
       const details = metadataById.get(insight.id);
       return {
         index, points,
-        label: insight.description ? `${insight.name} - ${insight.description}` : insight.name,
+        label: insight.name,
         unit: details && details.units || insight.units || '',
       };
     });
@@ -222,6 +224,15 @@ class InsightGraphs extends Homey.App {
     // coerce values so ti is between 0 and 1.
     const  _opacity = Math.round(Math.min(Math.max(opacity ?? 1, 0), 1) * 255);
     return color + _opacity.toString(16).padStart(2, '0').toUpperCase();
+  }
+
+  private async optionalAutocompleteListener(query: string, args: any): Promise<FlowCard.ArgumentAutocompleteResults[]> {
+    const results = await this.autocompleteListener(query, args);
+    const none = {name: this.homey.__('insight_none'), id: NO_INSIGHT_ID};
+    if (none.name.toLowerCase().includes((query ?? '').toLowerCase())) {
+      return [none, ...results];
+    }
+    return results;
   }
 
   private async autocompleteListener(query: string, args: any): Promise<FlowCard.ArgumentAutocompleteResults[]> {
