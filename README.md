@@ -1,5 +1,5 @@
 
-![forum_banner](https://github.com/LRvdLinden/homey-insigh-graphs/assets/77990847/99f01c2b-ca1f-4f87-8e4f-40b509107052)
+![forum_banner](https://us1.discourse-cdn.com/flex025/uploads/athom/original/3X/4/8/4808cd2d5f59e3bbc5d33c5287bcf3dfd17f41dc.jpeg)
 
 
 Insights Graphs for Homey
