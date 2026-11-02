@@ -80,9 +80,9 @@ class LogNormaliser {
         }
 
         const combinedLogs = this.logs.values.reduce((acc: {[key: string]: LogValue[]}, log: LogValue) => {
-            let date = dayjs(log.t);
+            const date = dayjs(log.t).tz(this.timezone);
 
-            const dateFormatted = date.format(loopFormat);
+            const dateFormatted = date.format(loopFormat + (loopFormat.includes('HH') ? ' Z' : ''));
 
             if (!acc[dateFormatted]) {
                 acc[dateFormatted] = [];
@@ -96,17 +96,17 @@ class LogNormaliser {
         const values: LogValue[] = [];
         Object.keys(combinedLogs).forEach((key) => {
             const logs = combinedLogs[key];
-            const highestLog = logs.reduce((acc: LogValue, log: LogValue) => {
-                if ((log.v ?? 0) > (acc.v ?? 0)) {
+            const highestLog = logs.reduce((acc: LogValue|null, log: LogValue) => {
+                if (log.v != null && (acc === null || log.v > acc.v!)) {
                     return log;
                 }
 
                 return acc;
-            }, {t: '', v: -999999});
+            }, null);
 
             values.push({
-                t: dayjs(highestLog.t).tz(this.timezone).format(labelFormat),
-                v: highestLog.v
+                t: dayjs((highestLog || logs[0]).t).tz(this.timezone).format(labelFormat),
+                v: highestLog ? highestLog.v : null
             });
         });
 

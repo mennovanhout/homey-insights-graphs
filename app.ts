@@ -2,7 +2,7 @@ import Homey, {FlowCard, Image} from 'homey';
 import { HomeyAPI, HomeyAPIV3Local } from 'homey-api';
 import LogNormaliser, {Log} from './src/LogNormaliser';
 import ChartJsImage from "chartjs-to-image";
-import {backgroundColor} from "./src/Utils";
+import {backgroundColor, limitChartPoints} from "./src/Utils";
 import dayjs from "dayjs";
 
 class InsightGraphs extends Homey.App {
@@ -32,16 +32,24 @@ class InsightGraphs extends Homey.App {
   }
 
   private async runListenerCreateGraph(args: any, stats: any): Promise<{graph: Image}> {
-    let filename: string = args.filename ?? 'temp.png';
-
-    if (filename.endsWith('.png')) {
-      filename = filename + '.png';
-    }
+    const requestedFilename: string = args.filename || 'temp.png';
+    const filename = /\.png$/i.test(requestedFilename) ? requestedFilename : `${requestedFilename}.png`;
+    const legacyFilename = requestedFilename.endsWith('.png') ? `${requestedFilename}.png` : requestedFilename;
 
     // Get logs
-    const logs: Log = await this.insightsManager!.getLogEntries({id: args.device.id, uri: args.device.uri, resolution: args.resolution});
+    let logs: Log;
+    try {
+      logs = await this.insightsManager!.getLogEntries({id: args.device.id, uri: args.device.uri, resolution: args.resolution});
+    } catch (error: any) {
+      this.error(`Homey Insights request failed for ${args.resolution}: ${error.message}`);
+      throw new Error(`Homey Insights request failed for ${args.resolution}: ${error.message}`);
+    }
     const logNormaliser = new LogNormaliser(logs, args.resolution, this.homey.clock.getTimezone());
-    const values = logNormaliser.getNormalisedLogs();
+    const normalisedValues = logNormaliser.getNormalisedLogs();
+    const values = limitChartPoints(normalisedValues);
+    if (values.length !== normalisedValues.length) {
+      this.log(`Reduced graph from ${normalisedValues.length} to ${values.length} points for QuickChart`);
+    }
 
     // Generate images
     const chart = new ChartJsImage();
@@ -58,7 +66,7 @@ class InsightGraphs extends Homey.App {
           fill: true,
           // cubicInterpolationMode: 'monotone',
           borderWidth: 2,
-          lineTension: 0.4,
+          tension: 0.4,
           pointRadius: 0
         }]
       },
@@ -94,32 +102,13 @@ class InsightGraphs extends Homey.App {
            }
          },
          scales: {
-           xAxes: [{
-             ticks: {
-               // autoSkip: true,
-               // maxTicksLimit: 6,
-               // maxRotation: 0
-             },
-             gridLines: {
-               display: false
-             }
-           }],
-           yAxes: [{
-             ticks: {
-                // autoSkip: true,
-                // maxTicksLimit: 6,
-                beginAtZero: false,
-              },
-             scaleLabel: {
-                display: true,
-                labelString: `${args.device.name}`,
-              },
-              gridLines: {
-                display: true,
-                borderDash: [4,4],
-                color: 'rgba(127,127,127,0.2)'
-              }
-            }]
+           x: { grid: { display: false } },
+           y: {
+             beginAtZero: false,
+             title: { display: true, text: `${args.device.name}` },
+             border: { dash: [4, 4] },
+             grid: { display: true, color: 'rgba(127,127,127,0.2)' },
+           },
          }
        }
     })
@@ -131,13 +120,21 @@ class InsightGraphs extends Homey.App {
 
 
 
-    await chart.toFile(`/userdata/${filename}`);
+    try {
+      await chart.toFile(`/userdata/${filename}`);
+    } catch (error: any) {
+      const status = error.response && error.response.status;
+      this.error(`QuickChart request failed${status ? ` (HTTP ${status})` : ''}: ${error.message}`);
+      throw new Error(`QuickChart could not generate the graph${status ? ` (HTTP ${status})` : ''}: ${error.message}`);
+    }
 
     // try to update image
-    const imageId = this.homey.settings.get(filename);
+    const imageId = this.homey.settings.get(filename) || (legacyFilename !== filename && this.homey.settings.get(legacyFilename));
     const realImage = await this.getImage(imageId);
 
     if (realImage) {
+      realImage.setPath(`/userdata/${filename}`);
+      this.homey.settings.set(filename, imageId);
       await realImage.update();
 
       return {
@@ -174,8 +171,8 @@ class InsightGraphs extends Homey.App {
 
   private addAlpha(color: string, opacity: number) {
     // coerce values so ti is between 0 and 1.
-    const  _opacity = Math.round(Math.min(Math.max(opacity || 1, 0), 1) * 255);
-    return color + _opacity.toString(16).toUpperCase();
+    const  _opacity = Math.round(Math.min(Math.max(opacity ?? 1, 0), 1) * 255);
+    return color + _opacity.toString(16).padStart(2, '0').toUpperCase();
   }
 
   private async autocompleteListener(query: string, args: any): Promise<FlowCard.ArgumentAutocompleteResults[]> {
