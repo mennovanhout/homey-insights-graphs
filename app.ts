@@ -6,6 +6,8 @@ import {backgroundColor, limitChartPoints} from "./src/Utils";
 import dayjs from "dayjs";
 import {makeMultiSeries, insightPoints} from './src/MultiSeries';
 import {applyGraphStyle} from './src/GraphStyle';
+import {reducePoints, Reduction} from './src/Reduction';
+import {applyTimeInterval} from './src/TimeAxis';
 
 const NO_INSIGHT_ID = '__insight_graphs_none__';
 
@@ -31,11 +33,15 @@ class InsightGraphs extends Homey.App {
     this.imageManager = this.homeyApi!.images;
 
     this.createGraphActionCard = this.homey.flow.getActionCard('create-graph-image');
-    this.createGraphActionCard.registerArgumentAutocompleteListener('device', this.autocompleteListener.bind(this));
-    for (const name of ['insight2', 'insight3', 'insight4']) {
-      this.createGraphActionCard.registerArgumentAutocompleteListener(name, this.optionalAutocompleteListener.bind(this));
+    const advancedCard = this.homey.flow.getActionCard('create-advanced-graph-image');
+    for (const card of [this.createGraphActionCard, advancedCard]) {
+      card.registerArgumentAutocompleteListener('device', this.autocompleteListener.bind(this));
+      for (const name of ['insight2', 'insight3', 'insight4']) {
+        card.registerArgumentAutocompleteListener(name, this.optionalAutocompleteListener.bind(this));
+      }
     }
     this.createGraphActionCard.registerRunListener(this.runListenerCreateGraph.bind(this));
+    advancedCard.registerRunListener((args, state) => this.runListenerCreateGraph({...args, advancedGraph: true}, state));
   }
 
   private async runListenerCreateGraph(args: any, stats: any): Promise<{graph: Image}> {
@@ -44,10 +50,19 @@ class InsightGraphs extends Homey.App {
     const legacyFilename = requestedFilename.endsWith('.png') ? `${requestedFilename}.png` : requestedFilename;
 
     const selected = [args.device, args.insight2, args.insight3, args.insight4].map((insight, index) => ({insight, index})).filter(item => item.insight && item.insight.id && item.insight.id !== NO_INSIGHT_ID);
+    if (args.advancedGraph) {
+      for (const name of ['color2', 'color3', 'color4']) {
+        if (args[name] != null && args[name] !== '' && (typeof args[name] !== 'string' || !/^#[0-9a-f]{6}$/i.test(args[name]))) throw new Error(`${name} must be a six-digit hexadecimal color`);
+      }
+    }
     const multi = selected.length > 1;
+    const aggregation = args.aggregation || 'legacy';
+    if (!['legacy', 'maximum', 'minimum', 'average'].includes(aggregation)) throw new Error('Invalid data reduction option');
+    if (multi && aggregation !== 'legacy') throw new Error('Data reduction is available only when one Insight is selected');
+    const configuredSeries = multi || aggregation !== 'legacy' || (args.tick_interval && args.tick_interval !== 'auto');
     let values: {t: string, v: number|null}[] = [];
     let multiChart;
-    if (multi) {
+    if (configuredSeries) {
       multiChart = await this.getMultiSeries(selected, args);
     } else {
       // Get logs
@@ -127,17 +142,22 @@ class InsightGraphs extends Homey.App {
          }
        }
     };
-    if (multi && multiChart) {
+    if (configuredSeries && multiChart) {
       chartConfig.data = {datasets: multiChart.datasets};
       chartConfig.options.scales = multiChart.scales;
-      chartConfig.options.plugins.legend.display = true;
-      chartConfig.options.plugins.title.text = `Insights - ${args.resolution}`;
+      chartConfig.options.plugins.legend.display = multi;
+      if (multi) chartConfig.options.plugins.title.text = `Insights - ${args.resolution}`;
+      if (multiChart.missing.length) {
+        chartConfig.options.plugins.subtitle.text += ` | ${this.homey.__('missing_insights')}: ${multiChart.missing.join(', ')}`;
+      }
     }
+    applyTimeInterval(chartConfig, args.tick_interval, this.homey.clock.getTimezone());
+    if (args.advancedGraph) this.applyAdvancedOptions(chartConfig, args);
     applyGraphStyle(chartConfig, args.type);
     chart.setConfig(chartConfig)
         .setChartJsVersion('4.4.0')
-        .setWidth(500)
-        .setHeight(300)
+        .setWidth(args.advancedGraph && args.image_width != null ? args.image_width : 500)
+        .setHeight(args.advancedGraph && args.image_height != null ? args.image_height : 300)
         .setBackgroundColor(backgroundColor(args.darkModeType))
         .setDevicePixelRatio('3.0');
 
@@ -184,16 +204,22 @@ class InsightGraphs extends Homey.App {
     const entriesPromise = Promise.allSettled(selected.map(({insight}) => this.insightsManager!.getLogEntries({id: insight.id, uri: insight.uri, resolution: args.resolution})));
     const [metadata, entries] = await Promise.all([metadataPromise, entriesPromise]);
     const metadataById = new Map(Object.values(metadata).map(log => [log.id, log]));
+    const missing: string[] = [];
     const series = selected.map(({insight, index}, i) => {
       const result = entries[i];
       if (result.status === 'rejected') {
+        missing.push(insight.name);
         this.error(`Insight ${index + 1} retrieval failed for ${args.resolution}: ${result.reason && result.reason.message || String(result.reason)}`);
         return null;
       }
-      const points = insightPoints(result.value);
+      let points = insightPoints(result.value);
       if (!points.some(point => point.y !== null)) {
+        missing.push(insight.name);
         this.log(`Insight ${index + 1} has no values for ${args.resolution}`);
         return null;
+      }
+      if (selected.length === 1 && args.aggregation && args.aggregation !== 'legacy') {
+        points = reducePoints(points, args.aggregation as Reduction);
       }
       this.log(`Retrieved ${points.length} points for Insight ${index + 1} (${args.resolution})`);
       const details = metadataById.get(insight.id);
@@ -203,7 +229,32 @@ class InsightGraphs extends Homey.App {
         unit: details && details.units || insight.units || '',
       };
     });
-    return makeMultiSeries(series, args.lineColor, this.homey.clock.getTimezone(), args.resolution);
+    const colors = args.advancedGraph ? [undefined, args.color2, args.color3, args.color4] : [];
+    if (args.advancedGraph && (args.y_min != null || args.y_max != null)) {
+      const units = new Set(series.filter((item): item is NonNullable<typeof item> => item !== null).map(item => item.unit));
+      if (units.size > 1) throw new Error('Custom Y-axis limits require Insights with the same known unit');
+    }
+    const graph = makeMultiSeries(series, args.lineColor, this.homey.clock.getTimezone(), args.resolution, colors);
+    return {...graph, missing};
+  }
+
+  private applyAdvancedOptions(config: any, args: any) {
+    for (const [name, minimum, maximum] of [['image_width', 200, 1500], ['image_height', 150, 1000]] as const) {
+      const value = args[name];
+      if (value != null && (!Number.isInteger(value) || value < minimum || value > maximum)) throw new Error(`${name} must be an integer from ${minimum} to ${maximum}`);
+    }
+    if (args.graph_title != null && typeof args.graph_title !== 'string') throw new Error('Graph title must be text');
+    if (args.graph_title) config.options.plugins.title.text = args.graph_title;
+    for (const key of ['y_min', 'y_max']) {
+      if (args[key] != null && (typeof args[key] !== 'number' || !Number.isFinite(args[key]))) throw new Error(`${key} must be a number`);
+    }
+    if (args.y_min != null && args.y_max != null && args.y_min >= args.y_max) throw new Error('Y-axis minimum must be less than maximum');
+    if (args.y_min != null || args.y_max != null) {
+      const axes = Object.keys(config.options.scales).filter(key => key !== 'x');
+      if (axes.length !== 1) throw new Error('Custom Y-axis limits require Insights with the same unit');
+      if (args.y_min != null) config.options.scales[axes[0]].min = args.y_min;
+      if (args.y_max != null) config.options.scales[axes[0]].max = args.y_max;
+    }
   }
 
   private async getImage(imageId: string) {

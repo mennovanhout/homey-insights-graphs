@@ -12,7 +12,7 @@ export interface Series {
     points: Point[];
 }
 
-export function makeMultiSeries(results: (Series|null)[], firstColor: string, timezone: string, resolution: string) {
+export function makeMultiSeries(results: (Series|null)[], firstColor: string, timezone: string, resolution: string, colors: (string|undefined)[] = []) {
     const available = results.filter((result): result is Series => result !== null && result.points.length > 0);
     if (!available.some(result => result.points.some(point => point.y !== null))) {
         throw new Error('No selected Insights have available values for this time range');
@@ -43,11 +43,11 @@ export function makeMultiSeries(results: (Series|null)[], firstColor: string, ti
             grid: { display: index === 0, color: 'rgba(127,127,127,0.2)' },
         };
     });
-    const usedColors = new Set([firstColor.toLowerCase()]);
+    const usedColors = new Set([firstColor, ...colors.filter((color): color is string => Boolean(color))].map(color => color.toLowerCase()));
     const datasets = available.map(result => {
         let color = firstColor;
         if (result.index !== 0) {
-            color = COLORS.find(candidate => !usedColors.has(candidate.toLowerCase()))!;
+            color = colors[result.index] || COLORS.find(candidate => !usedColors.has(candidate.toLowerCase())) || COLORS[result.index % COLORS.length];
             usedColors.add(color.toLowerCase());
         }
         return {

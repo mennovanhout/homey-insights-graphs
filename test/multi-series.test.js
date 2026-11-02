@@ -129,7 +129,7 @@ test('action returns one image with three independent series despite another una
         },
     };
     const image = { id: 'image', setPath(path) { this.path = path; } };
-    app.homey = { clock: { getTimezone: () => 'UTC' }, settings: { get: () => null, set: () => {} }, images: { createImage: async () => image } };
+    app.homey = { __: () => 'No data', clock: { getTimezone: () => 'UTC' }, settings: { get: () => null, set: () => {} }, images: { createImage: async () => image } };
     const setConfig = Chart.prototype.setConfig;
     const toFile = Chart.prototype.toFile;
     Chart.prototype.setConfig = function (config) { this.testConfig = config; return setConfig.call(this, config); };
@@ -137,6 +137,7 @@ test('action returns one image with three independent series despite another una
         assert.equal(this.testConfig.data.datasets.length, 3);
         assert.deepEqual(this.testConfig.data.datasets.map(dataset => dataset.label), ['L1', 'L2', 'L3']);
         assert.equal(this.testConfig.options.plugins.legend.display, true);
+        assert.match(this.testConfig.options.plugins.subtitle.text, /No data: L4/);
         assert.equal(this.testConfig.data.datasets[1].data[0].x, Date.parse('2026-01-01T00:02:00Z'));
         assert.equal(new Set(this.testConfig.data.datasets.map(d => d.yAxisID)).size, 1);
     };
