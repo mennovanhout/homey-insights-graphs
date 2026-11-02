@@ -93,6 +93,34 @@
                   "en": "bar",
                   "nl": "balk"
                 }
+              },
+              {
+                "id": "stepped",
+                "title": {
+                  "en": "stepped line",
+                  "nl": "getrapte lijn"
+                }
+              },
+              {
+                "id": "area",
+                "title": {
+                  "en": "area",
+                  "nl": "vlak"
+                }
+              },
+              {
+                "id": "points",
+                "title": {
+                  "en": "points",
+                  "nl": "punten"
+                }
+              },
+              {
+                "id": "straight",
+                "title": {
+                  "en": "straight line",
+                  "nl": "rechte lijn"
+                }
               }
             ]
           },

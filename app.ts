@@ -5,6 +5,7 @@ import ChartJsImage from "chartjs-to-image";
 import {backgroundColor, limitChartPoints} from "./src/Utils";
 import dayjs from "dayjs";
 import {makeMultiSeries, insightPoints} from './src/MultiSeries';
+import {applyGraphStyle} from './src/GraphStyle';
 
 const NO_INSIGHT_ID = '__insight_graphs_none__';
 
@@ -132,6 +133,7 @@ class InsightGraphs extends Homey.App {
       chartConfig.options.plugins.legend.display = true;
       chartConfig.options.plugins.title.text = `Insights - ${args.resolution}`;
     }
+    applyGraphStyle(chartConfig, args.type);
     chart.setConfig(chartConfig)
         .setChartJsVersion('4.4.0')
         .setWidth(500)
