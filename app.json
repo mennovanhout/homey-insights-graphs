@@ -68,8 +68,8 @@
           "nl": "geavanceerd - maak grafiek afbeelding"
         },
         "titleFormatted": {
-          "en": "Create [[type]] graph of [[device]], [[insight2]], [[insight3]], [[insight4]] [[resolution]] with line color [[lineColor]] in [[darkModeType]] as [[filename]]; labels [[tick_interval]], reduction [[aggregation]]; colors [[color2]], [[color3]], [[color4]]; Y [[y_min]]–[[y_max]]; title [[graph_title]]; size [[image_width]]×[[image_height]]",
-          "nl": "Maak [[type]] grafiek van [[device]], [[insight2]], [[insight3]], [[insight4]] [[resolution]] met lijnkleur [[lineColor]] in [[darkModeType]] als [[filename]]; labels [[tick_interval]], reductie [[aggregation]]; kleuren [[color2]], [[color3]], [[color4]]; Y [[y_min]]–[[y_max]]; titel [[graph_title]]; formaat [[image_width]]×[[image_height]]"
+          "en": "Create [[type]] graph of [[device]], [[insight2]], [[insight3]], [[insight4]] [[resolution]] with line color [[lineColor]] in [[darkModeType]] as [[filename]]; labels [[tick_interval]], reduction [[aggregation]]; colors [[color2]], [[color3]], [[color4]]; Y [[y_min]]–[[y_max]]; title [[graph_title]]; size [[image_width]]×[[image_height]]; axes [[axis1]], [[axis2]], [[axis3]], [[axis4]]; right Y [[y2_min]]–[[y2_max]]",
+          "nl": "Maak [[type]] grafiek van [[device]], [[insight2]], [[insight3]], [[insight4]] [[resolution]] met lijnkleur [[lineColor]] in [[darkModeType]] als [[filename]]; labels [[tick_interval]], reductie [[aggregation]]; kleuren [[color2]], [[color3]], [[color4]]; Y [[y_min]]–[[y_max]]; titel [[graph_title]]; formaat [[image_width]]×[[image_height]]; assen [[axis1]], [[axis2]], [[axis3]], [[axis4]]; rechter Y [[y2_min]]–[[y2_max]]"
         },
         "args": [
           {
@@ -424,8 +424,8 @@
             "type": "number",
             "required": false,
             "title": {
-              "en": "Y-axis minimum",
-              "nl": "Minimum Y-as"
+              "en": "Left Y-axis minimum",
+              "nl": "Minimum linker Y-as"
             }
           },
           {
@@ -433,8 +433,8 @@
             "type": "number",
             "required": false,
             "title": {
-              "en": "Y-axis maximum",
-              "nl": "Maximum Y-as"
+              "en": "Left Y-axis maximum",
+              "nl": "Maximum linker Y-as"
             }
           },
           {
@@ -468,6 +468,152 @@
             "title": {
               "en": "Image height",
               "nl": "Afbeeldingshoogte"
+            }
+          },
+          {
+            "name": "axis1",
+            "type": "dropdown",
+            "required": false,
+            "title": {
+              "en": "Insight 1 Y-axis",
+              "nl": "Y-as Insight 1"
+            },
+            "values": [
+              {
+                "id": "auto",
+                "title": {
+                  "en": "Automatic",
+                  "nl": "Automatisch"
+                }
+              },
+              {
+                "id": "left",
+                "title": {
+                  "en": "Left",
+                  "nl": "Links"
+                }
+              },
+              {
+                "id": "right",
+                "title": {
+                  "en": "Right",
+                  "nl": "Rechts"
+                }
+              }
+            ]
+          },
+          {
+            "name": "axis2",
+            "type": "dropdown",
+            "required": false,
+            "title": {
+              "en": "Insight 2 Y-axis",
+              "nl": "Y-as Insight 2"
+            },
+            "values": [
+              {
+                "id": "auto",
+                "title": {
+                  "en": "Automatic",
+                  "nl": "Automatisch"
+                }
+              },
+              {
+                "id": "left",
+                "title": {
+                  "en": "Left",
+                  "nl": "Links"
+                }
+              },
+              {
+                "id": "right",
+                "title": {
+                  "en": "Right",
+                  "nl": "Rechts"
+                }
+              }
+            ]
+          },
+          {
+            "name": "axis3",
+            "type": "dropdown",
+            "required": false,
+            "title": {
+              "en": "Insight 3 Y-axis",
+              "nl": "Y-as Insight 3"
+            },
+            "values": [
+              {
+                "id": "auto",
+                "title": {
+                  "en": "Automatic",
+                  "nl": "Automatisch"
+                }
+              },
+              {
+                "id": "left",
+                "title": {
+                  "en": "Left",
+                  "nl": "Links"
+                }
+              },
+              {
+                "id": "right",
+                "title": {
+                  "en": "Right",
+                  "nl": "Rechts"
+                }
+              }
+            ]
+          },
+          {
+            "name": "axis4",
+            "type": "dropdown",
+            "required": false,
+            "title": {
+              "en": "Insight 4 Y-axis",
+              "nl": "Y-as Insight 4"
+            },
+            "values": [
+              {
+                "id": "auto",
+                "title": {
+                  "en": "Automatic",
+                  "nl": "Automatisch"
+                }
+              },
+              {
+                "id": "left",
+                "title": {
+                  "en": "Left",
+                  "nl": "Links"
+                }
+              },
+              {
+                "id": "right",
+                "title": {
+                  "en": "Right",
+                  "nl": "Rechts"
+                }
+              }
+            ]
+          },
+          {
+            "name": "y2_min",
+            "type": "number",
+            "required": false,
+            "title": {
+              "en": "Right Y-axis minimum",
+              "nl": "minimum rechter Y-as"
+            }
+          },
+          {
+            "name": "y2_max",
+            "type": "number",
+            "required": false,
+            "title": {
+              "en": "Right Y-axis maximum",
+              "nl": "maximum rechter Y-as"
             }
           }
         ],

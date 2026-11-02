@@ -54,12 +54,16 @@ class InsightGraphs extends Homey.App {
       for (const name of ['color2', 'color3', 'color4']) {
         if (args[name] != null && args[name] !== '' && (typeof args[name] !== 'string' || !/^#[0-9a-f]{6}$/i.test(args[name]))) throw new Error(`${name} must be a six-digit hexadecimal color`);
       }
+      for (const name of ['axis1', 'axis2', 'axis3', 'axis4']) {
+        if (args[name] != null && args[name] !== '' && !['auto', 'left', 'right'].includes(args[name])) throw new Error(`Invalid Y-axis selection: ${name}`);
+      }
     }
     const multi = selected.length > 1;
+    const manualAxes = args.advancedGraph && selected.some(item => ['left', 'right'].includes(args[`axis${item.index + 1}`]));
     const aggregation = args.aggregation || 'legacy';
     if (!['legacy', 'maximum', 'minimum', 'average'].includes(aggregation)) throw new Error('Invalid data reduction option');
     if (multi && aggregation !== 'legacy') throw new Error('Data reduction is available only when one Insight is selected');
-    const configuredSeries = multi || aggregation !== 'legacy' || (args.tick_interval && args.tick_interval !== 'auto');
+    const configuredSeries = multi || manualAxes || aggregation !== 'legacy' || (args.tick_interval && args.tick_interval !== 'auto');
     let values: {t: string, v: number|null}[] = [];
     let multiChart;
     if (configuredSeries) {
@@ -230,11 +234,13 @@ class InsightGraphs extends Homey.App {
       };
     });
     const colors = args.advancedGraph ? [undefined, args.color2, args.color3, args.color4] : [];
-    if (args.advancedGraph && (args.y_min != null || args.y_max != null)) {
+    const customAxes = args.advancedGraph && (['axis1', 'axis2', 'axis3', 'axis4'].some(key => args[key] === 'left' || args[key] === 'right') || args.y2_min != null || args.y2_max != null);
+    if (args.advancedGraph && !customAxes && (args.y_min != null || args.y_max != null)) {
       const units = new Set(series.filter((item): item is NonNullable<typeof item> => item !== null).map(item => item.unit));
       if (units.size > 1) throw new Error('Custom Y-axis limits require Insights with the same known unit');
     }
-    const graph = makeMultiSeries(series, args.lineColor, this.homey.clock.getTimezone(), args.resolution, colors);
+    const axes = args.advancedGraph ? [args.axis1, args.axis2, args.axis3, args.axis4] : [];
+    const graph = makeMultiSeries(series, args.lineColor, this.homey.clock.getTimezone(), args.resolution, colors, axes);
     return {...graph, missing};
   }
 
@@ -245,10 +251,24 @@ class InsightGraphs extends Homey.App {
     }
     if (args.graph_title != null && typeof args.graph_title !== 'string') throw new Error('Graph title must be text');
     if (args.graph_title) config.options.plugins.title.text = args.graph_title;
-    for (const key of ['y_min', 'y_max']) {
+    for (const key of ['y_min', 'y_max', 'y2_min', 'y2_max']) {
       if (args[key] != null && (typeof args[key] !== 'number' || !Number.isFinite(args[key]))) throw new Error(`${key} must be a number`);
     }
     if (args.y_min != null && args.y_max != null && args.y_min >= args.y_max) throw new Error('Y-axis minimum must be less than maximum');
+    if (args.y2_min != null && args.y2_max != null && args.y2_min >= args.y2_max) throw new Error('Right Y-axis minimum must be less than maximum');
+    const customAxes = ['axis1', 'axis2', 'axis3', 'axis4'].some(key => args[key] === 'left' || args[key] === 'right');
+    if (customAxes || args.y2_min != null || args.y2_max != null) {
+      const axes = Object.entries(config.options.scales).filter(([key]) => key !== 'x') as [string, any][];
+      if (axes.length > 2) throw new Error('Custom axis limits require at most two Y-axes');
+      for (const [position, minimum, maximum] of [['left', args.y_min, args.y_max], ['right', args.y2_min, args.y2_max]] as const) {
+        if (minimum == null && maximum == null) continue;
+        const axis = axes.find(([, scale]) => (scale.position || 'left') === position);
+        if (!axis) throw new Error(`Cannot set ${position} Y-axis limits without an Insight on that axis`);
+        if (minimum != null) axis[1].min = minimum;
+        if (maximum != null) axis[1].max = maximum;
+      }
+      return;
+    }
     if (args.y_min != null || args.y_max != null) {
       const axes = Object.keys(config.options.scales).filter(key => key !== 'x');
       if (axes.length !== 1) throw new Error('Custom Y-axis limits require Insights with the same unit');

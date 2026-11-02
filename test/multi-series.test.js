@@ -44,6 +44,31 @@ test('different units use separate axes and no readings produces an error', () =
     assert.throws(() => makeMultiSeries([], '#123456', 'UTC', 'today'), /No selected Insights/);
 });
 
+test('manual Y-axis assignments separate same-unit series while automatic mode is unchanged', () => {
+    const points = [{x: 1000, y: 1}, {x: 2000, y: 2}];
+    const series = [
+        {index: 0, label: 'L1', unit: 'V', points},
+        {index: 1, label: 'L2', unit: 'V', points},
+        {index: 2, label: 'L3', unit: 'V', points},
+    ];
+    const automatic = makeMultiSeries(series, '#123456', 'UTC', 'last6Hours');
+    assert.deepEqual(automatic.datasets.map(dataset => dataset.yAxisID), ['y0', 'y0', 'y0']);
+    const manual = makeMultiSeries(series, '#123456', 'UTC', 'last6Hours', [], ['auto', 'right', 'auto']);
+    assert.deepEqual(manual.datasets.map(dataset => dataset.yAxisID), ['y0', 'y1', 'y0']);
+    assert.equal(manual.scales.y0.position, 'left');
+    assert.equal(manual.scales.y1.position, 'right');
+    assert.equal(manual.scales.y0.title.text, 'V');
+    assert.equal(manual.scales.y1.title.text, 'V');
+    const mixed = makeMultiSeries([series[0], {...series[1], unit: 'W'}], '#123456', 'UTC', 'last6Hours', [], ['left', 'left']);
+    assert.equal(mixed.scales.y0.title.text, 'V / W');
+    const unknown = makeMultiSeries([series[0], {...series[1], unit: ''}], '#123456', 'UTC', 'last6Hours', [], ['left', 'left']);
+    assert.equal(unknown.scales.y0.title.text, 'V / ?');
+    const threeUnits = [series[0], {...series[1], unit: 'W'}, {...series[2], unit: 'A'}];
+    assert.throws(() => makeMultiSeries(threeUnits, '#123456', 'UTC', 'last6Hours', [], ['left']), /more than two units/);
+    const assigned = makeMultiSeries(threeUnits, '#123456', 'UTC', 'last6Hours', [], ['left', 'right', 'right']);
+    assert.equal(assigned.scales.y1.title.text, 'W / A');
+});
+
 test('time labels match the selected range and use the Homey time zone', () => {
     const points = [{ x: Date.parse('2026-11-02T20:10:00Z'), y: 1 }];
     const tick = resolution => makeMultiSeries([{ index: 0, label: 'L1', unit: 'V', points }], '#ff0000', 'Europe/Prague', resolution).scales.x.ticks.callback(points[0].x);

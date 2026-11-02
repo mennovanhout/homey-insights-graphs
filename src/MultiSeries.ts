@@ -12,7 +12,7 @@ export interface Series {
     points: Point[];
 }
 
-export function makeMultiSeries(results: (Series|null)[], firstColor: string, timezone: string, resolution: string, colors: (string|undefined)[] = []) {
+export function makeMultiSeries(results: (Series|null)[], firstColor: string, timezone: string, resolution: string, colors: (string|undefined)[] = [], axisSelection: (string|undefined)[] = []) {
     const available = results.filter((result): result is Series => result !== null && result.points.length > 0);
     if (!available.some(result => result.points.some(point => point.y !== null))) {
         throw new Error('No selected Insights have available values for this time range');
@@ -35,8 +35,21 @@ export function makeMultiSeries(results: (Series|null)[], firstColor: string, ti
     const knownUnits = [...new Set(available.map(result => result.unit).filter(Boolean))];
     const unitFor = (result: Series) => result.unit || (knownUnits.length === 1 ? knownUnits[0] : '');
     const units = [...new Set(available.map(unitFor))];
+    const manualAxes = available.some(result => axisSelection[result.index] === 'left' || axisSelection[result.index] === 'right');
+    const axisFor = (result: Series): number => {
+        const selection = axisSelection[result.index];
+        if (manualAxes && selection === 'left') return 0;
+        if (manualAxes && selection === 'right') return 1;
+        const automaticAxis = units.indexOf(unitFor(result));
+        if (manualAxes && automaticAxis > 1) throw new Error('Assign Insights to the left or right axis when more than two units are selected');
+        return automaticAxis;
+    };
     const axes: Record<string, object> = {};
-    units.forEach((unit, index) => {
+    const axisIds = [...new Set(available.map(axisFor))].sort((a, b) => a - b);
+    axisIds.forEach(index => {
+        const assigned = available.filter(result => axisFor(result) === index);
+        const actualUnits = [...new Set(assigned.map(result => result.unit || '?'))];
+        const unit = manualAxes ? (actualUnits.every(item => item === '?') ? '' : actualUnits.join(' / ')) : units[index];
         axes[`y${index}`] = {
             type: 'linear', position: index % 2 ? 'right' : 'left', beginAtZero: false,
             title: { display: Boolean(unit), text: unit || '' },
@@ -51,7 +64,7 @@ export function makeMultiSeries(results: (Series|null)[], firstColor: string, ti
             usedColors.add(color.toLowerCase());
         }
         return {
-            label: result.label, data: result.points, yAxisID: `y${units.indexOf(unitFor(result))}`,
+            label: result.label, data: result.points, yAxisID: `y${axisFor(result)}`,
             borderColor: color, backgroundColor: color,
             fill: false, tension: 0.4, pointRadius: 0, spanGaps: false,
         };

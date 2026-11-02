@@ -76,7 +76,17 @@ test('advanced Flow applies colors, axis limits, title and dimensions to one ima
         assert.equal(ticks.count, 501);
         assert.equal(ticks.callback(Date.parse('2026-01-01T00:00:00Z')), '00:00');
         assert.equal(ticks.callback(Date.parse('2026-01-01T00:30:00Z')), '');
+        await app.runListenerCreateGraph({...args, axis2: 'right', y2_min: 0, y2_max: 10});
+        assert.deepEqual(chart.testConfig.data.datasets.map(dataset => dataset.yAxisID), ['y0', 'y1']);
+        assert.equal(chart.testConfig.options.scales.y0.min, 210);
+        assert.equal(chart.testConfig.options.scales.y1.min, 0);
+        assert.equal(chart.testConfig.options.scales.y1.max, 10);
+        await app.runListenerCreateGraph({...args, insight2: undefined, axis1: 'right', y_min: undefined, y_max: undefined, y2_min: 220, y2_max: 240});
+        assert.equal(chart.testConfig.data.datasets[0].yAxisID, 'y1');
+        assert.equal(chart.testConfig.options.scales.y1.min, 220);
+        assert.equal(chart.testConfig.options.scales.y1.max, 240);
         await assert.rejects(app.runListenerCreateGraph({...args, y_min: 250}), /minimum must be less/);
+        await assert.rejects(app.runListenerCreateGraph({...args, axis2: 'other'}), /Invalid Y-axis selection/);
     } finally { Chart.prototype.setConfig = setConfig; Chart.prototype.toFile = toFile; }
 });
 
@@ -102,4 +112,26 @@ test('single-Insight reduction is opt-in and mixed-unit custom limits are reject
     const config = {options: {scales: two.scales, plugins: {title: {text: 'Graph'}}}};
     assert.throws(() => app.applyAdvancedOptions(config, {y_min: 0}), /same unit/);
     assert.doesNotThrow(() => app.applyAdvancedOptions(config, {}));
+    const withRightLimit = await app.getMultiSeries([...selected, {insight: {id: 'b', name: 'Power'}, index: 1}], {...args, aggregation: 'legacy', advancedGraph: true, y_min: 210, y2_max: 5000});
+    const configured = {options: {scales: withRightLimit.scales, plugins: {title: {text: 'Graph'}}}};
+    app.applyAdvancedOptions(configured, {y_min: 210, y2_max: 5000});
+    assert.equal(configured.options.scales.y0.min, 210);
+    assert.equal(configured.options.scales.y1.max, 5000);
+});
+
+test('advanced per-axis limits target the correct side and validate both ranges', () => {
+    const load = Module._load;
+    Module._load = function (id, ...args) { return id === 'homey' ? { App: class {} } : load.call(this, id, ...args); };
+    let App;
+    try { App = require('../.homeybuild/app'); } finally { Module._load = load; }
+    const app = new App();
+    const config = {options: {scales: {x: {}, y0: {position: 'left'}, y1: {position: 'right'}}, plugins: {title: {text: 'Graph'}}}};
+    app.applyAdvancedOptions(config, {axis2: 'right', y_min: 210, y_max: 250, y2_min: 0, y2_max: 10});
+    assert.equal(config.options.scales.y0.min, 210);
+    assert.equal(config.options.scales.y0.max, 250);
+    assert.equal(config.options.scales.y1.min, 0);
+    assert.equal(config.options.scales.y1.max, 10);
+    assert.throws(() => app.applyAdvancedOptions(config, {y2_min: 4, y2_max: 4}), /Right Y-axis minimum/);
+    const leftOnly = {options: {scales: {x: {}, y: {}}, plugins: {title: {text: 'Graph'}}}};
+    assert.throws(() => app.applyAdvancedOptions(leftOnly, {y2_max: 10}), /without an Insight/);
 });
