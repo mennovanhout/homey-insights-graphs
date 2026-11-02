@@ -178,7 +178,7 @@ class InsightGraphs extends Homey.App {
     return color + _opacity.toString(16).toUpperCase();
   }
 
-  private async autocompleteListener(query: string, args: any): Promise<FlowCard.ArgumentAutocompleteResults> {
+  private async autocompleteListener(query: string, args: any): Promise<FlowCard.ArgumentAutocompleteResults[]> {
     const devices = await this.deviceManager!.getDevices();
     const logs = await this.insightsManager!.getLogs();
 
