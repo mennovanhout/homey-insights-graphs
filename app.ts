@@ -4,6 +4,7 @@ import LogNormaliser, {Log} from './src/LogNormaliser';
 import ChartJsImage from "chartjs-to-image";
 import {backgroundColor, limitChartPoints} from "./src/Utils";
 import dayjs from "dayjs";
+import {makeMultiSeries, insightPoints} from './src/MultiSeries';
 
 class InsightGraphs extends Homey.App {
   resolutionSelection: string[] = ['lastHour', 'last6Hours', 'last24Hours', 'last7Days', 'last14Days', 'last31Days',
@@ -28,6 +29,9 @@ class InsightGraphs extends Homey.App {
 
     this.createGraphActionCard = this.homey.flow.getActionCard('create-graph-image');
     this.createGraphActionCard.registerArgumentAutocompleteListener('device', this.autocompleteListener.bind(this));
+    for (const name of ['insight2', 'insight3', 'insight4']) {
+      this.createGraphActionCard.registerArgumentAutocompleteListener(name, this.autocompleteListener.bind(this));
+    }
     this.createGraphActionCard.registerRunListener(this.runListenerCreateGraph.bind(this));
   }
 
@@ -36,25 +40,33 @@ class InsightGraphs extends Homey.App {
     const filename = /\.png$/i.test(requestedFilename) ? requestedFilename : `${requestedFilename}.png`;
     const legacyFilename = requestedFilename.endsWith('.png') ? `${requestedFilename}.png` : requestedFilename;
 
-    // Get logs
-    let logs: Log;
-    try {
-      logs = await this.insightsManager!.getLogEntries({id: args.device.id, uri: args.device.uri, resolution: args.resolution});
-    } catch (error: any) {
-      this.error(`Homey Insights request failed for ${args.resolution}: ${error.message}`);
-      throw new Error(`Homey Insights request failed for ${args.resolution}: ${error.message}`);
-    }
-    const logNormaliser = new LogNormaliser(logs, args.resolution, this.homey.clock.getTimezone());
-    const normalisedValues = logNormaliser.getNormalisedLogs();
-    const values = limitChartPoints(normalisedValues);
-    if (values.length !== normalisedValues.length) {
-      this.log(`Reduced graph from ${normalisedValues.length} to ${values.length} points for QuickChart`);
+    const selected = [args.device, args.insight2, args.insight3, args.insight4].map((insight, index) => ({insight, index})).filter(item => item.insight && item.insight.id);
+    const multi = selected.length > 1;
+    let values: {t: string, v: number|null}[] = [];
+    let multiChart;
+    if (multi) {
+      multiChart = await this.getMultiSeries(selected, args);
+    } else {
+      // Get logs
+      let logs: Log;
+      try {
+        logs = await this.insightsManager!.getLogEntries({id: args.device.id, uri: args.device.uri, resolution: args.resolution});
+      } catch (error: any) {
+        this.error(`Homey Insights request failed for ${args.resolution}: ${error.message}`);
+        throw new Error(`Homey Insights request failed for ${args.resolution}: ${error.message}`);
+      }
+      const logNormaliser = new LogNormaliser(logs, args.resolution, this.homey.clock.getTimezone());
+      const normalisedValues = logNormaliser.getNormalisedLogs();
+      values = limitChartPoints(normalisedValues);
+      if (values.length !== normalisedValues.length) {
+        this.log(`Reduced graph from ${normalisedValues.length} to ${values.length} points for QuickChart`);
+      }
     }
 
     // Generate images
     const chart = new ChartJsImage();
 
-    chart.setConfig({
+    const chartConfig: any = {
       type: args.type,
       data: {
         labels: values.map((log) => log.t),
@@ -111,7 +123,14 @@ class InsightGraphs extends Homey.App {
            },
          }
        }
-    })
+    };
+    if (multi && multiChart) {
+      chartConfig.data = {datasets: multiChart.datasets};
+      chartConfig.options.scales = multiChart.scales;
+      chartConfig.options.plugins.legend.display = true;
+      chartConfig.options.plugins.title.text = `Insights - ${args.resolution}`;
+    }
+    chart.setConfig(chartConfig)
         .setChartJsVersion('4.4.0')
         .setWidth(500)
         .setHeight(300)
@@ -151,6 +170,36 @@ class InsightGraphs extends Homey.App {
     return {
       graph: image,
     };
+  }
+
+  private async getMultiSeries(selected: {insight: any, index: number}[], args: any) {
+    const metadataPromise = this.insightsManager!.getLogs().catch((error: any) => {
+      this.error(`Unable to retrieve Insight units: ${error.message}`);
+      return {};
+    });
+    const entriesPromise = Promise.allSettled(selected.map(({insight}) => this.insightsManager!.getLogEntries({id: insight.id, uri: insight.uri, resolution: args.resolution})));
+    const [metadata, entries] = await Promise.all([metadataPromise, entriesPromise]);
+    const metadataById = new Map(Object.values(metadata).map(log => [log.id, log]));
+    const series = selected.map(({insight, index}, i) => {
+      const result = entries[i];
+      if (result.status === 'rejected') {
+        this.error(`Insight ${index + 1} retrieval failed for ${args.resolution}: ${result.reason && result.reason.message || String(result.reason)}`);
+        return null;
+      }
+      const points = insightPoints(result.value);
+      if (!points.some(point => point.y !== null)) {
+        this.log(`Insight ${index + 1} has no values for ${args.resolution}`);
+        return null;
+      }
+      this.log(`Retrieved ${points.length} points for Insight ${index + 1} (${args.resolution})`);
+      const details = metadataById.get(insight.id);
+      return {
+        index, points,
+        label: insight.description ? `${insight.name} - ${insight.description}` : insight.name,
+        unit: details && details.units || insight.units || '',
+      };
+    });
+    return makeMultiSeries(series, args.lineColor, this.homey.clock.getTimezone(), args.resolution);
   }
 
   private async getImage(imageId: string) {
@@ -200,6 +249,7 @@ class InsightGraphs extends Homey.App {
         description: description.replaceAll(':', ' - '),
         id: logs[key].id,
         uri: logs[key].uri,
+        units: logs[key].units,
       });
       return result;
     }, []);

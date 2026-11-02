@@ -4,8 +4,8 @@
     "nl": "maak grafiek afbeelding"
   },
   "titleFormatted": {
-    "en": "Create [[type]] graph of [[device]] [[resolution]] with line color [[lineColor]] in [[darkModeType]] as [[filename]]",
-    "nl": "Maak [[type]] grafiek van [[device]] [[resolution]] met lijnkleur [[lineColor]] in [[darkModeType]] als [[filename]]"
+    "en": "Create [[type]] graph of [[device]], [[insight2]], [[insight3]], [[insight4]] [[resolution]] with line color [[lineColor]] in [[darkModeType]] as [[filename]]",
+    "nl": "Maak [[type]] grafiek van [[device]], [[insight2]], [[insight3]], [[insight4]] [[resolution]] met lijnkleur [[lineColor]] in [[darkModeType]] als [[filename]]"
   },
   "args": [
     {
@@ -39,6 +39,24 @@
         "en": "Choose a type",
         "nl": "Kies een type"
       }
+    },
+    {
+      "type": "autocomplete",
+      "name": "insight2",
+      "required": false,
+      "placeholder": { "en": "Optional second Insight", "nl": "Optionele tweede Insight" }
+    },
+    {
+      "type": "autocomplete",
+      "name": "insight3",
+      "required": false,
+      "placeholder": { "en": "Optional third Insight", "nl": "Optionele derde Insight" }
+    },
+    {
+      "type": "autocomplete",
+      "name": "insight4",
+      "required": false,
+      "placeholder": { "en": "Optional fourth Insight", "nl": "Optionele vierde Insight" }
     },
     {
       "type": "dropdown",
