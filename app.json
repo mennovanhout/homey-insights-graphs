@@ -64,12 +64,12 @@
     "actions": [
       {
         "title": {
-          "en": "create graph image",
-          "nl": "maak grafiek afbeelding"
+          "en": "advanced - create graph image",
+          "nl": "geavanceerd - maak grafiek afbeelding"
         },
         "titleFormatted": {
-          "en": "Create [[type]] graph of [[device]] [[resolution]] with line color [[lineColor]] in [[darkModeType]] as [[filename]]",
-          "nl": "Maak [[type]] grafiek van [[device]] [[resolution]] met lijnkleur [[lineColor]] in [[darkModeType]] als [[filename]]"
+          "en": "Create [[type]] graph of [[device]], [[insight2]], [[insight3]], [[insight4]] [[resolution]] with line color [[lineColor]] in [[darkModeType]] as [[filename]]; labels [[tick_interval]], reduction [[aggregation]]; colors [[color2]], [[color3]], [[color4]]; Y [[y_min]]–[[y_max]]; title [[graph_title]]; size [[image_width]]×[[image_height]]; axes [[axis1]], [[axis2]], [[axis3]], [[axis4]]; right Y [[y2_min]]–[[y2_max]]",
+          "nl": "Maak [[type]] grafiek van [[device]], [[insight2]], [[insight3]], [[insight4]] [[resolution]] met lijnkleur [[lineColor]] in [[darkModeType]] als [[filename]]; labels [[tick_interval]], reductie [[aggregation]]; kleuren [[color2]], [[color3]], [[color4]]; Y [[y_min]]–[[y_max]]; titel [[graph_title]]; formaat [[image_width]]×[[image_height]]; assen [[axis1]], [[axis2]], [[axis3]], [[axis4]]; rechter Y [[y2_min]]–[[y2_max]]"
         },
         "args": [
           {
@@ -93,6 +93,34 @@
                   "en": "bar",
                   "nl": "balk"
                 }
+              },
+              {
+                "id": "stepped",
+                "title": {
+                  "en": "stepped line",
+                  "nl": "getrapte lijn"
+                }
+              },
+              {
+                "id": "area",
+                "title": {
+                  "en": "area",
+                  "nl": "vlak"
+                }
+              },
+              {
+                "id": "points",
+                "title": {
+                  "en": "points",
+                  "nl": "punten"
+                }
+              },
+              {
+                "id": "straight",
+                "title": {
+                  "en": "straight line",
+                  "nl": "rechte lijn"
+                }
               }
             ]
           },
@@ -102,6 +130,33 @@
             "placeholder": {
               "en": "Choose a type",
               "nl": "Kies een type"
+            }
+          },
+          {
+            "type": "autocomplete",
+            "name": "insight2",
+            "required": false,
+            "placeholder": {
+              "en": "Optional second Insight",
+              "nl": "Optionele tweede Insight"
+            }
+          },
+          {
+            "type": "autocomplete",
+            "name": "insight3",
+            "required": false,
+            "placeholder": {
+              "en": "Optional third Insight",
+              "nl": "Optionele derde Insight"
+            }
+          },
+          {
+            "type": "autocomplete",
+            "name": "insight4",
+            "required": false,
+            "placeholder": {
+              "en": "Optional fourth Insight",
+              "nl": "Optionele vierde Insight"
             }
           },
           {
@@ -265,6 +320,644 @@
               "en": "Filename",
               "nl": "Bestandsnaam"
             }
+          },
+          {
+            "name": "tick_interval",
+            "type": "dropdown",
+            "required": false,
+            "title": {
+              "en": "Time labels",
+              "nl": "Tijdlabels"
+            },
+            "values": [
+              {
+                "id": "auto",
+                "title": {
+                  "en": "Automatic",
+                  "nl": "Automatisch"
+                }
+              },
+              {
+                "id": "hour",
+                "title": {
+                  "en": "Every hour",
+                  "nl": "Elk uur"
+                }
+              },
+              {
+                "id": "two_hours",
+                "title": {
+                  "en": "Every 2 hours",
+                  "nl": "Elke 2 uur"
+                }
+              }
+            ]
+          },
+          {
+            "name": "aggregation",
+            "type": "dropdown",
+            "required": false,
+            "title": {
+              "en": "Single Insight data reduction",
+              "nl": "Gegevensreductie voor één Insight"
+            },
+            "values": [
+              {
+                "id": "legacy",
+                "title": {
+                  "en": "Original (maximum)",
+                  "nl": "Origineel (maximum)"
+                }
+              },
+              {
+                "id": "maximum",
+                "title": {
+                  "en": "Maximum",
+                  "nl": "Maximum"
+                }
+              },
+              {
+                "id": "minimum",
+                "title": {
+                  "en": "Minimum",
+                  "nl": "Minimum"
+                }
+              },
+              {
+                "id": "average",
+                "title": {
+                  "en": "Average",
+                  "nl": "Gemiddelde"
+                }
+              }
+            ]
+          },
+          {
+            "name": "color2",
+            "type": "color",
+            "required": false,
+            "title": {
+              "en": "Insight 2 color",
+              "nl": "Kleur Insight 2"
+            }
+          },
+          {
+            "name": "color3",
+            "type": "color",
+            "required": false,
+            "title": {
+              "en": "Insight 3 color",
+              "nl": "Kleur Insight 3"
+            }
+          },
+          {
+            "name": "color4",
+            "type": "color",
+            "required": false,
+            "title": {
+              "en": "Insight 4 color",
+              "nl": "Kleur Insight 4"
+            }
+          },
+          {
+            "name": "y_min",
+            "type": "number",
+            "required": false,
+            "title": {
+              "en": "Left Y-axis minimum",
+              "nl": "Minimum linker Y-as"
+            }
+          },
+          {
+            "name": "y_max",
+            "type": "number",
+            "required": false,
+            "title": {
+              "en": "Left Y-axis maximum",
+              "nl": "Maximum linker Y-as"
+            }
+          },
+          {
+            "name": "graph_title",
+            "type": "text",
+            "required": false,
+            "title": {
+              "en": "Graph title",
+              "nl": "Grafiektitel"
+            }
+          },
+          {
+            "name": "image_width",
+            "type": "number",
+            "required": false,
+            "min": 200,
+            "max": 1500,
+            "step": 1,
+            "title": {
+              "en": "Image width",
+              "nl": "Afbeeldingsbreedte"
+            }
+          },
+          {
+            "name": "image_height",
+            "type": "number",
+            "required": false,
+            "min": 150,
+            "max": 1000,
+            "step": 1,
+            "title": {
+              "en": "Image height",
+              "nl": "Afbeeldingshoogte"
+            }
+          },
+          {
+            "name": "axis1",
+            "type": "dropdown",
+            "required": false,
+            "title": {
+              "en": "Insight 1 Y-axis",
+              "nl": "Y-as Insight 1"
+            },
+            "values": [
+              {
+                "id": "auto",
+                "title": {
+                  "en": "Automatic",
+                  "nl": "Automatisch"
+                }
+              },
+              {
+                "id": "left",
+                "title": {
+                  "en": "Left",
+                  "nl": "Links"
+                }
+              },
+              {
+                "id": "right",
+                "title": {
+                  "en": "Right",
+                  "nl": "Rechts"
+                }
+              }
+            ]
+          },
+          {
+            "name": "axis2",
+            "type": "dropdown",
+            "required": false,
+            "title": {
+              "en": "Insight 2 Y-axis",
+              "nl": "Y-as Insight 2"
+            },
+            "values": [
+              {
+                "id": "auto",
+                "title": {
+                  "en": "Automatic",
+                  "nl": "Automatisch"
+                }
+              },
+              {
+                "id": "left",
+                "title": {
+                  "en": "Left",
+                  "nl": "Links"
+                }
+              },
+              {
+                "id": "right",
+                "title": {
+                  "en": "Right",
+                  "nl": "Rechts"
+                }
+              }
+            ]
+          },
+          {
+            "name": "axis3",
+            "type": "dropdown",
+            "required": false,
+            "title": {
+              "en": "Insight 3 Y-axis",
+              "nl": "Y-as Insight 3"
+            },
+            "values": [
+              {
+                "id": "auto",
+                "title": {
+                  "en": "Automatic",
+                  "nl": "Automatisch"
+                }
+              },
+              {
+                "id": "left",
+                "title": {
+                  "en": "Left",
+                  "nl": "Links"
+                }
+              },
+              {
+                "id": "right",
+                "title": {
+                  "en": "Right",
+                  "nl": "Rechts"
+                }
+              }
+            ]
+          },
+          {
+            "name": "axis4",
+            "type": "dropdown",
+            "required": false,
+            "title": {
+              "en": "Insight 4 Y-axis",
+              "nl": "Y-as Insight 4"
+            },
+            "values": [
+              {
+                "id": "auto",
+                "title": {
+                  "en": "Automatic",
+                  "nl": "Automatisch"
+                }
+              },
+              {
+                "id": "left",
+                "title": {
+                  "en": "Left",
+                  "nl": "Links"
+                }
+              },
+              {
+                "id": "right",
+                "title": {
+                  "en": "Right",
+                  "nl": "Rechts"
+                }
+              }
+            ]
+          },
+          {
+            "name": "y2_min",
+            "type": "number",
+            "required": false,
+            "title": {
+              "en": "Right Y-axis minimum",
+              "nl": "minimum rechter Y-as"
+            }
+          },
+          {
+            "name": "y2_max",
+            "type": "number",
+            "required": false,
+            "title": {
+              "en": "Right Y-axis maximum",
+              "nl": "maximum rechter Y-as"
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "graph",
+            "type": "image",
+            "title": {
+              "en": "Graph",
+              "nl": "Grafiek"
+            }
+          }
+        ],
+        "id": "create-advanced-graph-image"
+      },
+      {
+        "title": {
+          "en": "create graph image",
+          "nl": "maak grafiek afbeelding"
+        },
+        "titleFormatted": {
+          "en": "Create [[type]] graph of [[device]], [[insight2]], [[insight3]], [[insight4]] [[resolution]] with line color [[lineColor]] in [[darkModeType]] as [[filename]]; labels [[tick_interval]], reduction [[aggregation]]",
+          "nl": "Maak [[type]] grafiek van [[device]], [[insight2]], [[insight3]], [[insight4]] [[resolution]] met lijnkleur [[lineColor]] in [[darkModeType]] als [[filename]]; labels [[tick_interval]], reductie [[aggregation]]"
+        },
+        "args": [
+          {
+            "name": "type",
+            "type": "dropdown",
+            "title": {
+              "en": "Type",
+              "nl": "Type"
+            },
+            "values": [
+              {
+                "id": "line",
+                "title": {
+                  "en": "line",
+                  "nl": "lijn"
+                }
+              },
+              {
+                "id": "bar",
+                "title": {
+                  "en": "bar",
+                  "nl": "balk"
+                }
+              },
+              {
+                "id": "stepped",
+                "title": {
+                  "en": "stepped line",
+                  "nl": "getrapte lijn"
+                }
+              },
+              {
+                "id": "area",
+                "title": {
+                  "en": "area",
+                  "nl": "vlak"
+                }
+              },
+              {
+                "id": "points",
+                "title": {
+                  "en": "points",
+                  "nl": "punten"
+                }
+              },
+              {
+                "id": "straight",
+                "title": {
+                  "en": "straight line",
+                  "nl": "rechte lijn"
+                }
+              }
+            ]
+          },
+          {
+            "type": "autocomplete",
+            "name": "device",
+            "placeholder": {
+              "en": "Choose a type",
+              "nl": "Kies een type"
+            }
+          },
+          {
+            "type": "autocomplete",
+            "name": "insight2",
+            "required": false,
+            "placeholder": {
+              "en": "Optional second Insight",
+              "nl": "Optionele tweede Insight"
+            }
+          },
+          {
+            "type": "autocomplete",
+            "name": "insight3",
+            "required": false,
+            "placeholder": {
+              "en": "Optional third Insight",
+              "nl": "Optionele derde Insight"
+            }
+          },
+          {
+            "type": "autocomplete",
+            "name": "insight4",
+            "required": false,
+            "placeholder": {
+              "en": "Optional fourth Insight",
+              "nl": "Optionele vierde Insight"
+            }
+          },
+          {
+            "type": "dropdown",
+            "name": "resolution",
+            "title": {
+              "en": "Choose a resolution",
+              "nl": "Kies een tijdsbestek"
+            },
+            "values": [
+              {
+                "id": "lastHour",
+                "title": {
+                  "en": "Last Hour",
+                  "nl": "Afgelopen uur"
+                }
+              },
+              {
+                "id": "last6Hours",
+                "title": {
+                  "en": "Last 6 Hours",
+                  "nl": "Afgelopen 6 uur"
+                }
+              },
+              {
+                "id": "last24Hours",
+                "title": {
+                  "en": "Last 24 Hours",
+                  "nl": "Afgelopen 24 uur"
+                }
+              },
+              {
+                "id": "last7Days",
+                "title": {
+                  "en": "Last 7 Days",
+                  "nl": "Afgelopen 7 dagen"
+                }
+              },
+              {
+                "id": "last14Days",
+                "title": {
+                  "en": "Last 14 Days",
+                  "nl": "Afgelopen 14 dagen"
+                }
+              },
+              {
+                "id": "last31Days",
+                "title": {
+                  "en": "Last 31 Days",
+                  "nl": "Afgelopen 31 dagen"
+                }
+              },
+              {
+                "id": "last2Years",
+                "title": {
+                  "en": "Last 2 Years",
+                  "nl": "Afgelopen 2 jaar"
+                }
+              },
+              {
+                "id": "today",
+                "title": {
+                  "en": "Today",
+                  "nl": "Vandaag"
+                }
+              },
+              {
+                "id": "thisWeek",
+                "title": {
+                  "en": "This Week",
+                  "nl": "Deze week"
+                }
+              },
+              {
+                "id": "thisMonth",
+                "title": {
+                  "en": "This Month",
+                  "nl": "Deze maand"
+                }
+              },
+              {
+                "id": "thisYear",
+                "title": {
+                  "en": "This Year",
+                  "nl": "Dit jaar"
+                }
+              },
+              {
+                "id": "yesterday",
+                "title": {
+                  "en": "Yesterday",
+                  "nl": "Gisteren"
+                }
+              },
+              {
+                "id": "lastWeek",
+                "title": {
+                  "en": "Last Week",
+                  "nl": "Afgelopen week"
+                }
+              },
+              {
+                "id": "lastMonth",
+                "title": {
+                  "en": "Last Month",
+                  "nl": "Afgelopen maand"
+                }
+              },
+              {
+                "id": "lastYear",
+                "title": {
+                  "en": "Last Year",
+                  "nl": "Afgelopen jaar"
+                }
+              }
+            ]
+          },
+          {
+            "type": "color",
+            "name": "lineColor",
+            "title": {
+              "en": "Line Color",
+              "nl": "Lijnkleur"
+            }
+          },
+          {
+            "name": "darkModeType",
+            "type": "dropdown",
+            "title": {
+              "en": "Color Mode",
+              "nl": "Kleurmodus"
+            },
+            "values": [
+              {
+                "id": "transparant",
+                "title": {
+                  "en": "Transparent Mode",
+                  "nl": "Transparante modus"
+                }
+              },
+              {
+                "id": "darkmode",
+                "title": {
+                  "en": "Dark Mode",
+                  "nl": "Donkere modus"
+                }
+              },
+              {
+                "id": "lightmode",
+                "title": {
+                  "en": "Light Mode",
+                  "nl": "Lichte modus"
+                }
+              }
+            ]
+          },
+          {
+            "name": "filename",
+            "type": "text",
+            "title": {
+              "en": "Filename",
+              "nl": "Bestandsnaam"
+            }
+          },
+          {
+            "name": "tick_interval",
+            "type": "dropdown",
+            "required": false,
+            "title": {
+              "en": "Time labels",
+              "nl": "Tijdlabels"
+            },
+            "values": [
+              {
+                "id": "auto",
+                "title": {
+                  "en": "Automatic",
+                  "nl": "Automatisch"
+                }
+              },
+              {
+                "id": "hour",
+                "title": {
+                  "en": "Every hour",
+                  "nl": "Elk uur"
+                }
+              },
+              {
+                "id": "two_hours",
+                "title": {
+                  "en": "Every 2 hours",
+                  "nl": "Elke 2 uur"
+                }
+              }
+            ]
+          },
+          {
+            "name": "aggregation",
+            "type": "dropdown",
+            "required": false,
+            "title": {
+              "en": "Single Insight data reduction",
+              "nl": "Gegevensreductie voor één Insight"
+            },
+            "values": [
+              {
+                "id": "legacy",
+                "title": {
+                  "en": "Original (maximum)",
+                  "nl": "Origineel (maximum)"
+                }
+              },
+              {
+                "id": "maximum",
+                "title": {
+                  "en": "Maximum",
+                  "nl": "Maximum"
+                }
+              },
+              {
+                "id": "minimum",
+                "title": {
+                  "en": "Minimum",
+                  "nl": "Minimum"
+                }
+              },
+              {
+                "id": "average",
+                "title": {
+                  "en": "Average",
+                  "nl": "Gemiddelde"
+                }
+              }
+            ]
           }
         ],
         "tokens": [

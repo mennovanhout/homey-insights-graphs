@@ -4,8 +4,8 @@
     "nl": "maak grafiek afbeelding"
   },
   "titleFormatted": {
-    "en": "Create [[type]] graph of [[device]] [[resolution]] with line color [[lineColor]] in [[darkModeType]] as [[filename]]",
-    "nl": "Maak [[type]] grafiek van [[device]] [[resolution]] met lijnkleur [[lineColor]] in [[darkModeType]] als [[filename]]"
+    "en": "Create [[type]] graph of [[device]], [[insight2]], [[insight3]], [[insight4]] [[resolution]] with line color [[lineColor]] in [[darkModeType]] as [[filename]]; labels [[tick_interval]], reduction [[aggregation]]",
+    "nl": "Maak [[type]] grafiek van [[device]], [[insight2]], [[insight3]], [[insight4]] [[resolution]] met lijnkleur [[lineColor]] in [[darkModeType]] als [[filename]]; labels [[tick_interval]], reductie [[aggregation]]"
   },
   "args": [
     {
@@ -29,6 +29,34 @@
             "en": "bar",
             "nl": "balk"
           }
+        },
+        {
+          "id": "stepped",
+          "title": {
+            "en": "stepped line",
+            "nl": "getrapte lijn"
+          }
+        },
+        {
+          "id": "area",
+          "title": {
+            "en": "area",
+            "nl": "vlak"
+          }
+        },
+        {
+          "id": "points",
+          "title": {
+            "en": "points",
+            "nl": "punten"
+          }
+        },
+        {
+          "id": "straight",
+          "title": {
+            "en": "straight line",
+            "nl": "rechte lijn"
+          }
         }
       ]
     },
@@ -39,6 +67,24 @@
         "en": "Choose a type",
         "nl": "Kies een type"
       }
+    },
+    {
+      "type": "autocomplete",
+      "name": "insight2",
+      "required": false,
+      "placeholder": { "en": "Optional second Insight", "nl": "Optionele tweede Insight" }
+    },
+    {
+      "type": "autocomplete",
+      "name": "insight3",
+      "required": false,
+      "placeholder": { "en": "Optional third Insight", "nl": "Optionele derde Insight" }
+    },
+    {
+      "type": "autocomplete",
+      "name": "insight4",
+      "required": false,
+      "placeholder": { "en": "Optional fourth Insight", "nl": "Optionele vierde Insight" }
     },
     {
       "type": "dropdown",
@@ -201,6 +247,77 @@
         "en": "Filename",
         "nl": "Bestandsnaam"
       }
+    },
+    {
+      "name": "tick_interval",
+      "type": "dropdown",
+      "required": false,
+      "title": {
+        "en": "Time labels",
+        "nl": "Tijdlabels"
+      },
+      "values": [
+        {
+          "id": "auto",
+          "title": {
+            "en": "Automatic",
+            "nl": "Automatisch"
+          }
+        },
+        {
+          "id": "hour",
+          "title": {
+            "en": "Every hour",
+            "nl": "Elk uur"
+          }
+        },
+        {
+          "id": "two_hours",
+          "title": {
+            "en": "Every 2 hours",
+            "nl": "Elke 2 uur"
+          }
+        }
+      ]
+    },
+    {
+      "name": "aggregation",
+      "type": "dropdown",
+      "required": false,
+      "title": {
+        "en": "Single Insight data reduction",
+        "nl": "Gegevensreductie voor één Insight"
+      },
+      "values": [
+        {
+          "id": "legacy",
+          "title": {
+            "en": "Original (maximum)",
+            "nl": "Origineel (maximum)"
+          }
+        },
+        {
+          "id": "maximum",
+          "title": {
+            "en": "Maximum",
+            "nl": "Maximum"
+          }
+        },
+        {
+          "id": "minimum",
+          "title": {
+            "en": "Minimum",
+            "nl": "Minimum"
+          }
+        },
+        {
+          "id": "average",
+          "title": {
+            "en": "Average",
+            "nl": "Gemiddelde"
+          }
+        }
+      ]
     }
   ],
   "tokens": [
