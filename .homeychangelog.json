@@ -22,5 +22,8 @@
   },
   "2.0.5": {
     "en": "Add creation date to bottom of image"
+  },
+  "3.0.0": {
+    "en": "Multi graph support"
   }
 }
